@@ -1,3 +1,11 @@
 .click {
   cursor: pointer;
 }
+
+.category-artwork {
+  height: 150px;
+}
+
+.song-artwork {
+  height: 100px;
+}

@@ -20,12 +20,13 @@ const sidebar = [
 
   heading("Songs"),
   link("Search", "search", "/songs"),
+  link("Upload", "upload", "/songs/create"),
   link("Categories", "view-grid-fill", "/categories"),
-  link("Tags", "tags-fill", "/tags"),
-  link("Playlists", "list-index", "/playlists"),
+  // link("Tags", "tags-fill", "/tags"),
+  // link("Playlists", "list-index", "/playlists"),
 
   heading("Administration"),
-  link("Global Settings", "setting", "#"),
+  link("Global Settings", "setting", "/settings"),
   link("Users", "users-fill", "#"),
   link("Admins", "user-circle-fill", "#"),
   // link("Item 2", "list-fill", "#"),
@@ -35,7 +36,7 @@ const sidebar = [
   //   link("Sub Menu 3", "video", "#"),
   // ]),
   heading("Account"),
-  link("Change Password", "shield-star-fill", "/password"),
+  // link("Change Password", "shield-star-fill", "/password"),
   link("Logout", "signout", "/logout"),
 ];
 
