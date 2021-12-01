@@ -9,3 +9,9 @@
 .song-artwork {
   height: 100px;
 }
+
+.btn-floater {
+  float: right;
+  top: 34px;
+  right: 4px;
+}

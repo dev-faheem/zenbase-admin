@@ -23,7 +23,8 @@ const columns = [
   },
   {
     name: "Artist",
-    selector: (row) => row.artist.name,
+    selector: (row) =>
+      row.artist?.name || <i className="text-danger">*DELETED USER*</i>,
   },
   {
     name: "",

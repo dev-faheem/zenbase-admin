@@ -129,6 +129,12 @@ export default function SongUpload() {
     history.push("/songs");
   };
 
+  function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function (txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+  }
+
   return (
     <Dashboard>
       <Formik
@@ -143,12 +149,23 @@ export default function SongUpload() {
                 <h4>Upload a New Song</h4>
               </CardHeader>
               <CardBody>
-                <Input
-                  name="name"
-                  label="Song Name"
-                  placeholder="Enter song name..."
-                  id="name"
-                />
+                <div>
+                  <button
+                    className="btn btn-sm btn-primary btn-floater"
+                    type="button"
+                    onClick={() => {
+                      setFieldValue("name", toTitleCase(values.name));
+                    }}
+                  >
+                    Title Case
+                  </button>
+                  <Input
+                    name="name"
+                    label="Song Name"
+                    placeholder="Enter song name..."
+                    id="name"
+                  />
+                </div>
 
                 <Select
                   label="Category"

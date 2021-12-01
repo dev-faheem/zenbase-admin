@@ -27,8 +27,8 @@ const sidebar = [
 
   heading("Administration"),
   link("Global Settings", "setting", "/settings"),
-  link("Users", "users-fill", "#"),
-  link("Admins", "user-circle-fill", "#"),
+  link("Users", "users-fill", "/users"),
+  link("Admins", "user-circle-fill", "/admins"),
   // link("Item 2", "list-fill", "#"),
   // link("Menu", "star-fill", "#", [
   //   link("Sub Menu 1", "menu-circled", "#"),
