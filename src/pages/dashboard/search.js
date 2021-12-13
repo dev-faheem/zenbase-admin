@@ -27,6 +27,18 @@ const columns = [
       row.artist?.name || <i className="text-danger">*DELETED USER*</i>,
   },
   {
+    name: "Source",
+    selector: (row) => {
+      return <audio src={row.source} controls />;
+    },
+  },
+  {
+    name: "Duration",
+    selector: (row) => {
+      return <div>{row.duration} seconds</div>;
+    },
+  },
+  {
     name: "",
     selector: (row) => (
       <>

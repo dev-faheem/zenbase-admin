@@ -72,6 +72,7 @@ export default function SongUpload() {
   const [fileError, setFileError] = useState();
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
+  const [duration, setDuration] = useState();
   const artworkFileRef = useRef();
   const sourceFileRef = useRef();
   const history = useHistory();
@@ -125,9 +126,34 @@ export default function SongUpload() {
     );
     payload.append("source", sourceFileRef.current.files[0]);
     payload.append("artwork", artworkFileRef.current.files[0]);
+    payload.append("duration", duration || 0);
     await axios.post("/songs", payload);
     history.push("/songs");
   };
+
+  function computeDuration(file) {
+    return new Promise((resolve) => {
+      var objectURL = URL.createObjectURL(file);
+      var mySound = new Audio([objectURL]);
+      mySound.addEventListener(
+        "canplaythrough",
+        () => {
+          URL.revokeObjectURL(objectURL);
+          resolve(mySound.duration);
+        },
+        false
+      );
+    });
+  }
+
+  async function onChangeSource(e) {
+    try {
+      const _duration = await computeDuration(e.target.files[0]);
+      setDuration(Math.floor(_duration));
+    } catch (e) {
+      alert("Cant compute duration of the song.");
+    }
+  }
 
   function toTitleCase(str) {
     return str.replace(/\w\S*/g, function (txt) {
@@ -218,12 +244,16 @@ export default function SongUpload() {
                 </FormGroup>
 
                 <FormGroup>
-                  <Label>Source (mp3 recommended)</Label>
+                  <Label>Source</Label>
                   <input
                     className="form-control"
                     type="file"
                     ref={sourceFileRef}
+                    onChange={onChangeSource}
                   />
+                  <p className="text-muted text-xs">
+                    {duration && `Detected ${duration} seconds`}
+                  </p>
                 </FormGroup>
 
                 {fileError && (
