@@ -1,59 +1,66 @@
-import Dashboard from "../../layouts/dashboard";
-import DataTable from "../../components/datatable";
-import { useEffect } from "react/cjs/react.development";
-import sweetError from "../../services/sweetError";
-import { useState } from "react";
-import axios from "axios";
-import useURLState from "@ahooksjs/use-url-state";
-import swal from "sweetalert";
+import Dashboard from '../../layouts/dashboard';
+import DataTable from '../../components/datatable';
+import { useEffect } from 'react/cjs/react.development';
+import sweetError from '../../services/sweetError';
+import { useState } from 'react';
+import axios from 'axios';
+import useURLState from '@ahooksjs/use-url-state';
+import swal from 'sweetalert';
 
 const columns = [
   {
-    name: "ID",
+    name: 'ID',
     selector: (row, index) => index + 1,
   },
 
   {
-    name: "Name",
+    name: 'Name',
     selector: (row) => row.name,
   },
   {
-    name: "Artwork",
+    name: 'Artwork',
     selector: (row) => <img className="song-artwork" src={row.artwork} />,
   },
   {
-    name: "Artist",
+    name: 'Artist',
     selector: (row) =>
-      row.artist?.name || <i className="text-danger">*DELETED USER*</i>,
+      row.artist
+        .map(
+          (artist) =>
+            artist?.name || <i className="text-danger">Deleted User</i>
+        )
+        .join(', '),
+    // row.artist?.name || <i className="text-danger">*DELETED USER*</i>,
   },
   {
-    name: "Source",
+    name: 'Source',
     selector: (row) => {
       return <audio src={row.source} controls />;
     },
   },
   {
-    name: "Duration",
+    name: 'Duration',
     selector: (row) => {
       return <div>{row.duration} seconds</div>;
     },
   },
   {
-    name: "",
+    name: '',
     selector: (row) => (
       <>
         <button
           className="btn btn-danger btn-sm"
           onClick={() => {
             swal({
-              title: "Are you sure?",
-              text: "Once deleted, you will not be able to recover this song!",
-              icon: "warning",
+              title: 'Are you sure?',
+              text: 'Once deleted, you will not be able to recover this song!',
+              icon: 'warning',
               buttons: true,
               dangerMode: true,
             }).then((willDelete) => {
               if (willDelete) {
-                axios.delete("/songs/" + row._id);
+                axios.delete('/songs/' + row._id);
+                window?.location?.reload();
               }
             });
           }}
@@ -71,7 +78,7 @@ export default function Search() {
   const [previousPage, setPreviousPage] = useState();
   const [nextPage, setNextPage] = useState();
 
-  const [queryParams, setQueryParams] = useURLState({ page: 1, search: "" });
+  const [queryParams, setQueryParams] = useURLState({ page: 1, search: '' });
 
   const page = parseInt(queryParams.page);
   const setPage = (_page) => setQueryParams({ ...queryParams, page: _page });
@@ -86,7 +93,7 @@ export default function Search() {
 
   const fetchSongs = async () => {
     try {
-      const response = await axios.get("/songs", {
+      const response = await axios.get('/songs', {
         params: {
           limit: 10,
           page,
@@ -102,7 +109,6 @@ export default function Search() {
     }
   };
 
-  console.log(songs);
   return (
     <Dashboard>
       <DataTable

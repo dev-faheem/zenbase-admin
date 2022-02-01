@@ -6,6 +6,7 @@
     "@ahooksjs/use-url-state": "^2.5.11",
     "axios": "^0.21.1",
     "classnames": "^2.3.1",
+    "country-state-city": "^3.0.1",
     "formik": "^2.2.9",
     "react": "^17.0.2",
     "react-data-table-component": "^7.4.5",
