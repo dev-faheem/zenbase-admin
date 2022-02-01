@@ -1,4 +1,4 @@
-import Dashboard from "../../layouts/dashboard";
+import Dashboard from '../../layouts/dashboard';
 import {
   Alert,
   Button,
@@ -12,13 +12,14 @@ import {
   Input,
   Label,
   Row,
-} from "reactstrap";
-import { useState, useEffect } from "react";
-import DataTable from "../../components/datatable";
-import axios from "axios";
-import { Field, Formik } from "formik";
-import config from "../../config";
-import swal from "sweetalert";
+} from 'reactstrap';
+import { useState, useEffect } from 'react';
+import DataTable from '../../components/datatable';
+import axios from 'axios';
+import { Field, Formik } from 'formik';
+import config from '../../config';
+import swal from 'sweetalert';
+import { Country, State } from 'country-state-city';
 
 function UserField({ label, name, ...props }) {
   return (
@@ -36,15 +37,17 @@ function UserField({ label, name, ...props }) {
 
 function UserCreator({ refetch }) {
   const initialValues = {
-    name: "",
-    email: "",
-    phone: "",
-    username: "",
-    password: "",
+    name: '',
+    email: '',
+    phone: '',
+    username: '',
+    password: '',
+    country: '',
+    state: '',
   };
 
   const onSubmit = async (values, formikProps) => {
-    await axios.post(config.app + "/auth/register", values);
+    await axios.post(config.app + '/auth/register', values);
     formikProps.resetForm();
     refetch?.();
   };
@@ -63,6 +66,46 @@ function UserCreator({ refetch }) {
               <UserField name="phone" label="Phone" />
               <UserField name="username" label="Username" />
               <UserField name="password" label="Password" type="password" />
+
+              <FormGroup>
+                <Label>Country</Label>
+                <select
+                  className="form-control"
+                  name="country"
+                  value={props.values.country}
+                  onChange={(e) => {
+                    props.setFieldValue('country', e.target.value);
+                  }}
+                >
+                  <option selected>Choose a country</option>
+                  {Country.getAllCountries().map((country) => {
+                    return (
+                      <option value={country.isoCode}>{country.name}</option>
+                    );
+                  })}
+                </select>
+              </FormGroup>
+              {props.values.country && props.values.country != '' && (
+                <FormGroup>
+                  <Label>State</Label>
+                  <select
+                    className="form-control"
+                    name="state"
+                    value={props.values.state}
+                    onChange={(e) => {
+                      props.setFieldValue('state', e.target.value);
+                    }}
+                  >
+                    {State.getStatesOfCountry(props.values.country).map(
+                      (state) => {
+                        return (
+                          <option value={state.isoCode}>{state.name}</option>
+                        );
+                      }
+                    )}
+                  </select>
+                </FormGroup>
+              )}
             </CardBody>
             <CardFooter>
               <Button type="submit">Register</Button>
@@ -76,40 +119,70 @@ function UserCreator({ refetch }) {
 
 export default function Users() {
   const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
 
   const columns = [
     {
-      name: "ID",
+      name: 'ID',
       selector: (row, index) => index + 1,
     },
     {
-      name: "Name",
+      name: 'Name',
       selector: (row) => row.name,
     },
     {
-      name: "Email",
+      name: 'Email',
       selector: (row) => row.email,
     },
     {
-      name: "Username",
+      name: 'Username',
       selector: (row) => row.username,
     },
     {
-      name: "Phone",
+      name: 'Phone',
       selector: (row) => row.phone,
     },
     {
-      name: "Options",
+      name: 'Location',
+      selector: (row) =>
+        `${Country.getCountryByCode(row.country)?.name}, ${
+          State.getStateByCodeAndCountry(row.state, row.country)?.name
+        }`,
+    },
+    {
+      name: 'Account Type',
+      selector: (row) =>
+        row.isArtist ? 'Artist' : row.isPremium ? 'Premium' : 'General',
+    },
+    {
+      name: 'Options',
       selector: (row) => (
         <div>
+          {!row.isArtist && (
+            <Button
+              color="warning"
+              className="mr-2 btn-sm"
+              onClick={async () => {
+                try {
+                  await axios.patch(`/users/${row._id}`, {
+                    isArtist: true,
+                  });
+                  window.location.reload();
+                } catch (e) {
+                  console.log(e);
+                }
+              }}
+            >
+              Make Artist
+            </Button>
+          )}
           <Button
             color="danger"
             onClick={() => {
               swal({
-                title: "Are you sure?",
-                text: "Once deleted, user wont be able to login or access their accounts.",
-                icon: "warning",
+                title: 'Are you sure?',
+                text: 'Once deleted, user wont be able to login or access their accounts.',
+                icon: 'warning',
                 buttons: true,
                 dangerMode: true,
               }).then(async (willDelete) => {
@@ -128,7 +201,7 @@ export default function Users() {
   ];
 
   const fetchData = async () => {
-    const { data } = await axios.get("/users");
+    const { data } = await axios.get('/users');
     setUsers(data.data);
   };
 
@@ -145,9 +218,9 @@ export default function Users() {
             showPagination={false}
             columns={columns}
             rows={users.filter((user) => {
-              if (search !== "") {
+              if (search !== '') {
                 return Object.keys(user).some((key) =>
-                  user[key].includes(search)
+                  user[key]?.toString()?.toLowerCase()?.includes(search)
                 );
               }
               return true;
