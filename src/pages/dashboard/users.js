@@ -47,7 +47,10 @@ function UserCreator({ refetch }) {
   };
 
   const onSubmit = async (values, formikProps) => {
-    await axios.post(config.app + '/auth/register', values);
+    await axios.post(config.app + '/auth/register', {
+      ...values,
+      dontAutoGenerateName: true,
+    });
     formikProps.resetForm();
     refetch?.();
   };
