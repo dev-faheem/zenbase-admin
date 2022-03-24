@@ -1,4 +1,4 @@
-import Dashboard from '../../layouts/dashboard';
+import Dashboard from "../../layouts/dashboard";
 import {
   Alert,
   Button,
@@ -12,14 +12,14 @@ import {
   Input,
   Label,
   Row,
-} from 'reactstrap';
-import { useState, useEffect } from 'react';
-import DataTable from '../../components/datatable';
-import axios from 'axios';
-import { Field, Formik } from 'formik';
-import config from '../../config';
-import swal from 'sweetalert';
-import { Country, State } from 'country-state-city';
+} from "reactstrap";
+import { useState, useEffect } from "react";
+import DataTable from "../../components/datatable";
+import axios from "axios";
+import { Field, Formik } from "formik";
+import config from "../../config";
+import swal from "sweetalert";
+import { Country, State } from "country-state-city";
 
 function UserField({ label, name, ...props }) {
   return (
@@ -37,17 +37,17 @@ function UserField({ label, name, ...props }) {
 
 function UserCreator({ refetch }) {
   const initialValues = {
-    name: '',
-    email: '',
-    phone: '',
-    username: '',
-    password: '',
-    country: '',
-    state: '',
+    name: "",
+    email: "",
+    phone: "",
+    username: "",
+    password: "",
+    country: "",
+    state: "",
   };
 
   const onSubmit = async (values, formikProps) => {
-    await axios.post(config.app + '/auth/register', {
+    await axios.post(config.app + "/auth/register", {
       ...values,
       dontAutoGenerateName: true,
     });
@@ -77,7 +77,7 @@ function UserCreator({ refetch }) {
                   name="country"
                   value={props.values.country}
                   onChange={(e) => {
-                    props.setFieldValue('country', e.target.value);
+                    props.setFieldValue("country", e.target.value);
                   }}
                 >
                   <option selected>Choose a country</option>
@@ -88,7 +88,7 @@ function UserCreator({ refetch }) {
                   })}
                 </select>
               </FormGroup>
-              {props.values.country && props.values.country != '' && (
+              {props.values.country && props.values.country != "" && (
                 <FormGroup>
                   <Label>State</Label>
                   <select
@@ -96,7 +96,7 @@ function UserCreator({ refetch }) {
                     name="state"
                     value={props.values.state}
                     onChange={(e) => {
-                      props.setFieldValue('state', e.target.value);
+                      props.setFieldValue("state", e.target.value);
                     }}
                   >
                     {State.getStatesOfCountry(props.values.country).map(
@@ -122,43 +122,43 @@ function UserCreator({ refetch }) {
 
 export default function Users() {
   const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   const columns = [
     {
-      name: 'ID',
+      name: "ID",
       selector: (row, index) => index + 1,
     },
     {
-      name: 'Name',
+      name: "Name",
       selector: (row) => row.name,
     },
     {
-      name: 'Email',
+      name: "Email",
       selector: (row) => row.email,
     },
     {
-      name: 'Username',
+      name: "Username",
       selector: (row) => row.username,
     },
     {
-      name: 'Phone',
+      name: "Phone",
       selector: (row) => row.phone,
     },
     {
-      name: 'Location',
+      name: "Location",
       selector: (row) =>
         `${Country.getCountryByCode(row.country)?.name}, ${
           State.getStateByCodeAndCountry(row.state, row.country)?.name
         }`,
     },
     {
-      name: 'Account Type',
+      name: "Account Type",
       selector: (row) =>
-        row.isArtist ? 'Artist' : row.isPremium ? 'Premium' : 'General',
+        row.isArtist ? "Artist" : row.isPremium ? "Premium" : "General",
     },
     {
-      name: 'Options',
+      name: "Options",
       selector: (row) => (
         <div>
           {!row.isArtist && (
@@ -183,9 +183,9 @@ export default function Users() {
             color="danger"
             onClick={() => {
               swal({
-                title: 'Are you sure?',
-                text: 'Once deleted, user wont be able to login or access their accounts.',
-                icon: 'warning',
+                title: "Are you sure?",
+                text: "Once deleted, user wont be able to login or access their accounts.",
+                icon: "warning",
                 buttons: true,
                 dangerMode: true,
               }).then(async (willDelete) => {
@@ -204,7 +204,7 @@ export default function Users() {
   ];
 
   const fetchData = async () => {
-    const { data } = await axios.get('/users');
+    const { data } = await axios.get("/users");
     setUsers(data.data);
   };
 
@@ -221,7 +221,7 @@ export default function Users() {
             showPagination={false}
             columns={columns}
             rows={users.filter((user) => {
-              if (search !== '') {
+              if (search !== "") {
                 return Object.keys(user).some((key) =>
                   user[key]?.toString()?.toLowerCase()?.includes(search)
                 );
