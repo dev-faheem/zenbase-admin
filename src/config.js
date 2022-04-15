@@ -1,6 +1,5 @@
 const config = {
-  api: "http://localhost:4000/admin",
-  app: "http://localhost:4000",
+  api: "http://18.196.187.86:4000/admin",
+  app: "http://18.196.187.86",
 };
-
 export default config;
