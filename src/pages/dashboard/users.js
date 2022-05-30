@@ -46,6 +46,8 @@ function UserCreator({ refetch }) {
     state: "",
   };
 
+  const [isOpen, setIsOpen] = useState(false);
+
   const onSubmit = async (values, formikProps) => {
     await axios.post(config.app + "/auth/register", {
       ...values,
@@ -60,59 +62,70 @@ function UserCreator({ refetch }) {
       {(props) => (
         <Card className="card-bordered">
           <Form onSubmit={props.handleSubmit}>
-            <CardHeader>
+            <CardHeader
+              style={{ cursor: "pointer" }}
+              onClick={() => setIsOpen(!isOpen)}
+            >
               <h5>Register a User</h5>
             </CardHeader>
-            <CardBody>
-              <UserField name="name" label="Name" />
-              <UserField name="email" label="Email" type="email" />
-              <UserField name="phone" label="Phone" />
-              <UserField name="username" label="Username" />
-              <UserField name="password" label="Password" type="password" />
+            {isOpen && (
+              <>
+                <CardBody>
+                  <UserField name="name" label="Name" />
+                  <UserField name="email" label="Email" type="email" />
+                  <UserField name="phone" label="Phone" />
+                  <UserField name="username" label="Username" />
+                  <UserField name="password" label="Password" type="password" />
 
-              <FormGroup>
-                <Label>Country</Label>
-                <select
-                  className="form-control"
-                  name="country"
-                  value={props.values.country}
-                  onChange={(e) => {
-                    props.setFieldValue("country", e.target.value);
-                  }}
-                >
-                  <option selected>Choose a country</option>
-                  {Country.getAllCountries().map((country) => {
-                    return (
-                      <option value={country.isoCode}>{country.name}</option>
-                    );
-                  })}
-                </select>
-              </FormGroup>
-              {props.values.country && props.values.country != "" && (
-                <FormGroup>
-                  <Label>State</Label>
-                  <select
-                    className="form-control"
-                    name="state"
-                    value={props.values.state}
-                    onChange={(e) => {
-                      props.setFieldValue("state", e.target.value);
-                    }}
-                  >
-                    {State.getStatesOfCountry(props.values.country).map(
-                      (state) => {
+                  <FormGroup>
+                    <Label>Country</Label>
+                    <select
+                      className="form-control"
+                      name="country"
+                      value={props.values.country}
+                      onChange={(e) => {
+                        props.setFieldValue("country", e.target.value);
+                      }}
+                    >
+                      <option selected>Choose a country</option>
+                      {Country.getAllCountries().map((country) => {
                         return (
-                          <option value={state.isoCode}>{state.name}</option>
+                          <option value={country.isoCode}>
+                            {country.name}
+                          </option>
                         );
-                      }
-                    )}
-                  </select>
-                </FormGroup>
-              )}
-            </CardBody>
-            <CardFooter>
-              <Button type="submit">Register</Button>
-            </CardFooter>
+                      })}
+                    </select>
+                  </FormGroup>
+                  {props.values.country && props.values.country != "" && (
+                    <FormGroup>
+                      <Label>State</Label>
+                      <select
+                        className="form-control"
+                        name="state"
+                        value={props.values.state}
+                        onChange={(e) => {
+                          props.setFieldValue("state", e.target.value);
+                        }}
+                      >
+                        {State.getStatesOfCountry(props.values.country).map(
+                          (state) => {
+                            return (
+                              <option value={state.isoCode}>
+                                {state.name}
+                              </option>
+                            );
+                          }
+                        )}
+                      </select>
+                    </FormGroup>
+                  )}
+                </CardBody>
+                <CardFooter>
+                  <Button type="submit">Register</Button>
+                </CardFooter>
+              </>
+            )}
           </Form>
         </Card>
       )}
@@ -122,6 +135,7 @@ function UserCreator({ refetch }) {
 
 export default function Users() {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
 
   const columns = [
@@ -156,6 +170,10 @@ export default function Users() {
       name: "Account Type",
       selector: (row) =>
         row.isArtist ? "Artist" : row.isPremium ? "Premium" : "General",
+    },
+    {
+      name: "Zentokens",
+      selector: (row) => (row.zentokens ? row.zentokens : "~"),
     },
     {
       name: "Options",
@@ -204,8 +222,10 @@ export default function Users() {
   ];
 
   const fetchData = async () => {
+    setLoading(true);
     const { data } = await axios.get("/users");
     setUsers(data.data);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -215,7 +235,10 @@ export default function Users() {
   return (
     <Dashboard>
       <Row>
-        <Col md={8}>
+        <Col md={12} className="mb-4">
+          <UserCreator refetch={fetchData} />
+        </Col>
+        <Col md={12}>
           <DataTable
             onSearch={setSearch}
             showPagination={false}
@@ -230,9 +253,11 @@ export default function Users() {
             })}
           />
         </Col>
-        <Col md={4}>
-          <UserCreator refetch={fetchData} />
-        </Col>
+        {loading && (
+          <Col md={12}>
+            <h4>Loading Users...</h4>
+          </Col>
+        )}
       </Row>
     </Dashboard>
   );
