@@ -8,7 +8,6 @@
     "classnames": "^2.3.1",
     "country-state-city": "^3.0.1",
     "formik": "^2.2.9",
-    "moment": "^2.29.3",
     "react": "^17.0.2",
     "react-data-table-component": "^7.4.5",
     "react-datepicker": "^4.1.1",

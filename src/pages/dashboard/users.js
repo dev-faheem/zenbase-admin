@@ -20,7 +20,6 @@ import { Field, Formik } from "formik";
 import config from "../../config";
 import swal from "sweetalert";
 import { Country, State } from "country-state-city";
-import moment from "moment";
 
 function UserField({ label, name, ...props }) {
   return (
@@ -136,12 +135,8 @@ function UserCreator({ refetch }) {
 
 export default function Users() {
   const [users, setUsers] = useState([]);
-  const [subscribeUser, setSubscribeUser] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
-  const [subscitbecheck, setIsSubscibeCheck] = useState(false);
-  const [unsubscribeCheck, setIsUnsubscribeCheck] = useState(false);
-  const [allCheck, setIsAllCheck] = useState(false);
 
   const columns = [
     {
@@ -174,21 +169,7 @@ export default function Users() {
     {
       name: "Account Type",
       selector: (row) =>
-        row.isArtist ? "Artist" : row.isPremium ? "Premium" : "General"
-    },
-    {
-      name: "Subscription start",
-      selector: (row) =>
-        row.subscription
-          ? moment(row.subscription.createdAt).format("DD/MM/yyyy")
-          : ""
-    },
-    {
-      name: "Subscription end",
-      selector: (row) =>
-        row.subscription
-          ? moment(row.subscription.expiresAt).format("DD/MM/yyyy")
-          : ""
+        row.isArtist ? "Artist" : row.isPremium ? "Premium" : "General",
     },
     {
       name: "Zentokens",
@@ -244,39 +225,12 @@ export default function Users() {
     setLoading(true);
     const { data } = await axios.get("/users");
     setUsers(data.data);
-    setSubscribeUser(data.data);
     setLoading(false);
   };
 
   useEffect(() => {
     fetchData();
   }, []);
-
-  const onChnageSubscriptionUser = () => {
-    setIsSubscibeCheck(!subscitbecheck);
-    const subscribeData = subscribeUser.filter(
-      (item) => item.subscription === null
-    );
-    setUsers(subscribeData);
-  };
-
-  const onChnageUnSubscriptionUser = () => {
-    setIsUnsubscribeCheck(!unsubscribeCheck);
-    const unSubscribe = subscribeUser.filter(
-      (item) => item.subscription !== null
-    );
-    setUsers(unSubscribe);
-  };
-
-  const onChangeAll = () => {
-    setUsers(subscribeUser);
-  };
-
-  useEffect(() => {
-    if (subscitbecheck && unsubscribeCheck) {
-      setUsers(subscribeUser);
-    }
-  }, [subscitbecheck, unsubscribeCheck]);
 
   return (
     <Dashboard>
@@ -286,9 +240,6 @@ export default function Users() {
         </Col>
         <Col md={12}>
           <DataTable
-            onChangeUnSubscribe={() => onChnageUnSubscriptionUser()}
-            onChnageSubscribe={() => onChnageSubscriptionUser()}
-            onChnageAll={() => onChangeAll()}
             onSearch={setSearch}
             showPagination={false}
             columns={columns}
