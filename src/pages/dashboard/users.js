@@ -21,6 +21,7 @@ import config from "../../config";
 import swal from "sweetalert";
 import { Country, State } from "country-state-city";
 import moment from "moment";
+import { subscribeCheckBoxArr } from "../../mockData";
 
 function UserField({ label, name, ...props }) {
   return (
@@ -136,12 +137,12 @@ function UserCreator({ refetch }) {
 
 export default function Users() {
   const [users, setUsers] = useState([]);
-  const [subscribeUser, setSubscribeUser] = useState([]);
+  const [filterUsers, setFilterUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
-  const [subscitbecheck, setIsSubscibeCheck] = useState(false);
-  const [unsubscribeCheck, setIsUnsubscribeCheck] = useState(false);
-  const [allCheck, setIsAllCheck] = useState(false);
+  const [checkedState, setCheckedState] = useState(
+    new Array(subscribeCheckBoxArr.length).fill(false)
+  );
 
   const columns = [
     {
@@ -192,7 +193,7 @@ export default function Users() {
     },
     {
       name: "Zentokens",
-      selector: (row) => (row.zentokens ? row.zentokens : "~"),
+      selector: (row) => (row.zentokens ? row.zentokens : "~")
     },
     {
       name: "Options",
@@ -244,7 +245,6 @@ export default function Users() {
     setLoading(true);
     const { data } = await axios.get("/users");
     setUsers(data.data);
-    setSubscribeUser(data.data);
     setLoading(false);
   };
 
@@ -252,32 +252,38 @@ export default function Users() {
     fetchData();
   }, []);
 
-  const onChnageSubscriptionUser = () => {
-    setIsSubscibeCheck(!subscitbecheck);
-    const subscribeData = subscribeUser.filter(
-      (item) => item.subscription === null
+  const handleOnChange = (position) => {
+    let updatedCheckedState = checkedState.map((item, index) =>
+      index === position ? !item : item
     );
-    setUsers(subscribeData);
-  };
-
-  const onChnageUnSubscriptionUser = () => {
-    setIsUnsubscribeCheck(!unsubscribeCheck);
-    const unSubscribe = subscribeUser.filter(
-      (item) => item.subscription !== null
-    );
-    setUsers(unSubscribe);
-  };
-
-  const onChangeAll = () => {
-    setUsers(subscribeUser);
+    setCheckedState(updatedCheckedState);
   };
 
   useEffect(() => {
-    if (subscitbecheck && unsubscribeCheck) {
-      setUsers(subscribeUser);
+    if (checkedState[0] && checkedState[1]) {
+      checkedState[2] = true;
+      setFilterUsers(users);
+    } else if (
+      (checkedState[0] && checkedState[2]) ||
+      (checkedState[1] && checkedState[2])
+    ) {
+      setFilterUsers(users);
+    } else if (checkedState[0]) {
+      const subscribeFilter = users.filter(
+        (item) => item.subscription === null
+      );
+      setFilterUsers(subscribeFilter);
+    } else if (checkedState[1]) {
+      const unSubscribeFilter = users.filter(
+        (item) => item.subscription !== null
+      );
+      setFilterUsers(unSubscribeFilter);
+    } else {
+      setFilterUsers(users);
     }
-  }, [subscitbecheck, unsubscribeCheck]);
+  }, [checkedState]);
 
+  let isFilter = checkedState.some((item) => item === true);
   return (
     <Dashboard>
       <Row>
@@ -286,20 +292,29 @@ export default function Users() {
         </Col>
         <Col md={12}>
           <DataTable
-            onChangeUnSubscribe={() => onChnageUnSubscriptionUser()}
-            onChnageSubscribe={() => onChnageSubscriptionUser()}
-            onChnageAll={() => onChangeAll()}
+            checked={checkedState}
+            onChangeCheckBox={handleOnChange}
             onSearch={setSearch}
             showPagination={false}
             columns={columns}
-            rows={users.filter((user) => {
-              if (search !== "") {
-                return Object.keys(user).some((key) =>
-                  user[key]?.toString()?.toLowerCase()?.includes(search)
-                );
-              }
-              return true;
-            })}
+            rows={
+              isFilter
+                ? filterUsers.filter((user) => {
+                    if (search !== "") {
+                      return Object.keys(user).some((key) =>
+                        user[key]?.toString()?.toLowerCase()?.includes(search)
+                      );
+                    }
+                    return true;
+                  })
+                : users.filter((user) => {
+                    if (search !== "") {
+                      return Object.keys(user).some((key) =>
+                        user[key]?.toString()?.toLowerCase()?.includes(search)
+                      );
+                    }
+                    return true;
+                  })}
           />
         </Col>
         {loading && (

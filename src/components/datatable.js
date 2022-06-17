@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  Label,
-  Input
-} from "reactstrap";
+import CustomDropDown from "./drop-down";
 
 export default function DataTable({
   columns,
@@ -19,16 +12,9 @@ export default function DataTable({
   onSearch,
   showSearch = true,
   showPagination = true,
-  onChnageSubscribe,
-  onChangeUnSubscribe,
-  onChnageAll
+  checked,
+  onChangeCheckBox
 }) {
-  const [isDropdown, setIsDropdown] = useState(false);
-
-  const toggleDropDown = () => {
-    setIsDropdown((prevState) => !prevState.isDropdown);
-  };
-
   return (
     <>
       {showSearch && (
@@ -40,40 +26,10 @@ export default function DataTable({
             onChange={(e) => onSearch?.(e.target.value)}
             placeholder="Search..."
           />
-          <Dropdown
-            style={{ marginLeft: 20 }}
-            isOpen={isDropdown}
-            toggle={toggleDropDown}
-          >
-            <DropdownToggle caret>
-              {" "}
-              <em className="icon ni ni-filter"></em>
-            </DropdownToggle>
-            <DropdownMenu>
-              <DropdownItem style={{ color: "white" }}>
-                <Label check style={{ marginLeft: 20 }}>
-                  <Input
-                    // onClick={onClickSubscibe}
-                    onChange={onChangeUnSubscribe}
-                    type="checkbox"
-                  />{" "}
-                  Not subscribe user
-                </Label>
-              </DropdownItem>
-              <DropdownItem style={{ color: "white" }}>
-                <Label check style={{ marginLeft: 20 }}>
-                  <Input onChange={onChnageSubscribe} type="checkbox" />
-                  Subscribe user
-                </Label>
-              </DropdownItem>
-              <DropdownItem style={{ color: "white" }}>
-                <Label check style={{ marginLeft: 20 }}>
-                  <Input onChange={onChnageAll} type="checkbox" />
-                  All
-                </Label>
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
+          <CustomDropDown
+            checked={checked}
+            onChangeCheckBox={onChangeCheckBox}
+          />
         </div>
       )}
       <table className="table table-striped table-bordered">
