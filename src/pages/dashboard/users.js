@@ -147,19 +147,19 @@ export default function Users() {
   const columns = [
     {
       name: "ID",
-      selector: (row, index) => index + 1,
+      selector: (row, index) => index + 1
     },
     {
       name: "Name",
-      selector: (row) => row.name,
+      selector: (row) => row.name
     },
     {
       name: "Email",
-      selector: (row) => row.email,
+      selector: (row) => row.email
     },
     {
       name: "Username",
-      selector: (row) => row.username,
+      selector: (row) => row.username
     },
     {
       name: "Phone",
@@ -175,10 +175,9 @@ export default function Users() {
     {
       name: "Account Type",
       selector: (row) =>
-        row.isArtist ? "Artist" : row.isPremium ? "Premium" : "General"
+        row.isArtist ? "Artist" : row.isPremium ? "Premium" : "General",
     },
-    {
-      name: "Subscription start",
+    {name: "Subscription start",
       selector: (row) =>
         row.subscription
           ? moment(row.subscription.createdAt).format("DD/MM/yyyy")
