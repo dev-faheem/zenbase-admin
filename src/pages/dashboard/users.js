@@ -20,6 +20,8 @@ import { Field, Formik } from "formik";
 import config from "../../config";
 import swal from "sweetalert";
 import { Country, State } from "country-state-city";
+import moment from "moment";
+import { subscribeCheckBoxArr } from "../../mockData";
 
 function UserField({ label, name, ...props }) {
   return (
@@ -135,25 +137,29 @@ function UserCreator({ refetch }) {
 
 export default function Users() {
   const [users, setUsers] = useState([]);
+  const [filterUsers, setFilterUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [checkedState, setCheckedState] = useState(
+    new Array(subscribeCheckBoxArr.length).fill(false)
+  );
 
   const columns = [
     {
       name: "ID",
-      selector: (row, index) => index + 1,
+      selector: (row, index) => index + 1
     },
     {
       name: "Name",
-      selector: (row) => row.name,
+      selector: (row) => row.name
     },
     {
       name: "Email",
-      selector: (row) => row.email,
+      selector: (row) => row.email
     },
     {
       name: "Username",
-      selector: (row) => row.username,
+      selector: (row) => row.username
     },
     {
       name: "Phone",
@@ -171,9 +177,22 @@ export default function Users() {
       selector: (row) =>
         row.isArtist ? "Artist" : row.isPremium ? "Premium" : "General",
     },
+    {name: "Subscription start",
+      selector: (row) =>
+        row.subscription
+          ? moment(row.subscription.createdAt).format("DD/MM/yyyy")
+          : ""
+    },
+    {
+      name: "Subscription end",
+      selector: (row) =>
+        row.subscription
+          ? moment(row.subscription.expiresAt).format("DD/MM/yyyy")
+          : ""
+    },
     {
       name: "Zentokens",
-      selector: (row) => (row.zentokens ? row.zentokens : "~"),
+      selector: (row) => (row.zentokens ? row.zentokens : "~")
     },
     {
       name: "Options",
@@ -232,6 +251,38 @@ export default function Users() {
     fetchData();
   }, []);
 
+  const handleOnChange = (position) => {
+    let updatedCheckedState = checkedState.map((item, index) =>
+      index === position ? !item : item
+    );
+    setCheckedState(updatedCheckedState);
+  };
+
+  useEffect(() => {
+    if (checkedState[0] && checkedState[1]) {
+      checkedState[2] = true;
+      setFilterUsers(users);
+    } else if (
+      (checkedState[0] && checkedState[2]) ||
+      (checkedState[1] && checkedState[2])
+    ) {
+      setFilterUsers(users);
+    } else if (checkedState[0]) {
+      const subscribeFilter = users.filter(
+        (item) => item.subscription === null
+      );
+      setFilterUsers(subscribeFilter);
+    } else if (checkedState[1]) {
+      const unSubscribeFilter = users.filter(
+        (item) => item.subscription !== null
+      );
+      setFilterUsers(unSubscribeFilter);
+    } else {
+      setFilterUsers(users);
+    }
+  }, [checkedState]);
+
+  let isFilter = checkedState.some((item) => item === true);
   return (
     <Dashboard>
       <Row>
@@ -240,17 +291,29 @@ export default function Users() {
         </Col>
         <Col md={12}>
           <DataTable
+            checked={checkedState}
+            onChangeCheckBox={handleOnChange}
             onSearch={setSearch}
             showPagination={false}
             columns={columns}
-            rows={users.filter((user) => {
-              if (search !== "") {
-                return Object.keys(user).some((key) =>
-                  user[key]?.toString()?.toLowerCase()?.includes(search)
-                );
-              }
-              return true;
-            })}
+            rows={
+              isFilter
+                ? filterUsers.filter((user) => {
+                    if (search !== "") {
+                      return Object.keys(user).some((key) =>
+                        user[key]?.toString()?.toLowerCase()?.includes(search)
+                      );
+                    }
+                    return true;
+                  })
+                : users.filter((user) => {
+                    if (search !== "") {
+                      return Object.keys(user).some((key) =>
+                        user[key]?.toString()?.toLowerCase()?.includes(search)
+                      );
+                    }
+                    return true;
+                  })}
           />
         </Col>
         {loading && (
