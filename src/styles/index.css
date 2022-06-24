@@ -19,3 +19,22 @@
   background-color: transparent;
   border: none;
 }
+.round-button-active{
+  font-size: 0.8125rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: calc(1rem + 1.125rem + 2px);
+    border-radius: 50%;
+    width: 0px;
+    color: white !important;
+}
+.round-button{
+  font-size: 0.8125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: calc(1rem + 1.125rem + 2px);
+    border-radius: 50%;
+    height: 35px;
+}

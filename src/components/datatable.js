@@ -1,20 +1,22 @@
-import { useState } from "react";
 import CustomDropDown from "./drop-down";
+import "../styles/index.css";
 
 export default function DataTable({
   columns,
   rows,
-  page,
-  onChangePage,
-  previousPage,
-  nextPage,
+  onChangeNext,
+  onChangePrevious,
   search,
   onSearch,
   showSearch = true,
   showPagination = true,
   checked,
-  onChangeCheckBox
+  onChangeCheckBox,
+  pagination,
+  pageNumbers,
+  onPaginate,
 }) {
+  console.log("pagination", pagination);
   return (
     <>
       {showSearch && (
@@ -58,22 +60,35 @@ export default function DataTable({
         </tbody>
       </table>
       {showPagination && (
-        <div className="mt-4 d-flex justify-content-between">
+        <div className="mt-4 d-flex justify-content-end">
           <button
-            className="btn btn-outline-primary"
+            className="mx-1 btn btn-outline-primary"
             onClick={() => {
-              onChangePage?.(previousPage);
+              onChangePrevious?.(pagination.previous);
             }}
-            disabled={previousPage == null || previousPage == page}
+            disabled={pagination.previous === null}
           >
             Previous
           </button>
+          {pageNumbers.map((pageNo) => (
+            <button
+              className={`px-1 btn rounded-circle round-button mx-1 ${pagination.page === pageNo ? "btn-primary" : " btn-outline-primary"}`}
+              key={pageNo}
+              onClick={() => onPaginate(pageNo)}
+            >
+              <p>
+                {pageNo}
+              </p>
+            </button>
+          ))}
+          <div>
+          </div>
           <button
-            className="btn btn-outline-primary"
+            className="mx-1 btn btn-outline-primary"
             onClick={() => {
-              onChangePage?.(nextPage);
+              onChangeNext?.(pagination.next);
             }}
-            disabled={nextPage == null || nextPage == page}
+            disabled={pagination.next === null}
           >
             Next
           </button>

@@ -1,6 +1,5 @@
 import Dashboard from "../../layouts/dashboard";
 import {
-  Alert,
   Button,
   Card,
   CardBody,
@@ -99,7 +98,7 @@ function UserCreator({ refetch }) {
                       })}
                     </select>
                   </FormGroup>
-                  {props.values.country && props.values.country != "" && (
+                  {props.values.country && props.values.country !== "" && (
                     <FormGroup>
                       <Label>State</Label>
                       <select
@@ -143,6 +142,22 @@ export default function Users() {
   const [checkedState, setCheckedState] = useState(
     new Array(subscribeCheckBoxArr.length).fill(false)
   );
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    previous: 2,
+    next: 0,
+    limit: 10,
+  });
+
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(pagination.total / pagination.limit); i++) {
+    pageNumbers.push(i);
+  }
+  const onPaginate = (pageNumber) =>  setPagination({
+    ...pagination,
+    page: pageNumber,
+  });
 
   const columns = [
     {
@@ -239,18 +254,51 @@ export default function Users() {
       ),
     },
   ];
-
-  const fetchData = async () => {
+  const fetchData = async (page) => {
     setLoading(true);
-    const { data } = await axios.get("/users");
-    setUsers(data.data);
-    setLoading(false);
+    try {
+      const { data } = await axios.get(
+        `/users?limit=1 &page=${page}&search=${search}`
+      );
+      const { results, pagination } = data.data;
+      setLoading(false);
+      setUsers(results);
+      setPagination(pagination);
+    } catch (err) {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(pagination.page);
+  }, [pagination.page]);
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (search) {
+        fetchData(1);
+      }
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [search]);
+
+  const onChangeNext = () => {
+    if (pagination.page < pagination.total) {
+      setPagination({
+        ...pagination,
+        page: pagination.next,
+      });
+    }
+  };
+
+  const onChangePrevious = () => {
+    if (pagination.previous >= 0) {
+      setPagination({
+        ...pagination,
+        page: pagination.previous,
+      });
+    }
+  };
   const handleOnChange = (position) => {
     let updatedCheckedState = checkedState.map((item, index) =>
       index === position ? !item : item
@@ -294,7 +342,7 @@ export default function Users() {
             checked={checkedState}
             onChangeCheckBox={handleOnChange}
             onSearch={setSearch}
-            showPagination={false}
+            showPagination={true}
             columns={columns}
             rows={
               isFilter
@@ -313,7 +361,14 @@ export default function Users() {
                       );
                     }
                     return true;
-                  })}
+                  })
+            }
+            pagination={pagination}
+            onChangeNext={onChangeNext}
+            onChangePrevious={onChangePrevious}
+            pageCount={pagination.total}
+            pageNumbers={pageNumbers}
+            onPaginate={onPaginate}
           />
         </Col>
         {loading && (
