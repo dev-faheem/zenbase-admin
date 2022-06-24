@@ -16,7 +16,6 @@ export default function DataTable({
   pageNumbers,
   onPaginate,
 }) {
-  console.log("pagination", pagination);
   return (
     <>
       {showSearch && (
