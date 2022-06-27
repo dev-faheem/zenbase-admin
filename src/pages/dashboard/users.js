@@ -202,6 +202,10 @@ export default function Users() {
           : ""
     },
     {
+      name: "Meditated Time(hrs)",
+      selector: (row) => row.hours
+    },
+    {
       name: "CreatedAt",
       selector: (row) =>
         row.createdAt
