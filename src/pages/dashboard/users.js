@@ -150,10 +150,6 @@ export default function Users() {
     limit: 10,
   });
 
-  const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(pagination.total / pagination.limit); i++) {
-    pageNumbers.push(i);
-  }
   const onPaginate = (pageNumber) =>  setPagination({
     ...pagination,
     page: pageNumber,
@@ -206,6 +202,13 @@ export default function Users() {
           : ""
     },
     {
+      name: "CreatedAt",
+      selector: (row) =>
+        row.createdAt
+          ? moment(row.createdAt).format("DD/MM/yyyy")
+          : ""
+    },
+    {
       name: "Zentokens",
       selector: (row) => (row.zentokens ? row.zentokens : "~")
     },
@@ -247,7 +250,7 @@ export default function Users() {
                 }
               });
             }}
-          >
+          > 
             Delete
           </Button>
         </div>
@@ -258,8 +261,8 @@ export default function Users() {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `/users?limit=1 &page=${page}&search=${search}`
-      );
+        `admin/users?limit=10&page=${page}&search=${search}`
+        );
       const { results, pagination } = data.data;
       setLoading(false);
       setUsers(results);
@@ -270,8 +273,9 @@ export default function Users() {
   };
 
   useEffect(() => {
-    fetchData(pagination.page);
-  }, [pagination.page]);
+    fetchData(pagination?.page);
+  }, [pagination?.page]);
+
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -354,7 +358,7 @@ export default function Users() {
                     }
                     return true;
                   })
-                : users.filter((user) => {
+                : users?.filter((user) => {
                     if (search !== "") {
                       return Object.keys(user).some((key) =>
                         user[key]?.toString()?.toLowerCase()?.includes(search)
@@ -366,8 +370,7 @@ export default function Users() {
             pagination={pagination}
             onChangeNext={onChangeNext}
             onChangePrevious={onChangePrevious}
-            pageCount={pagination.total}
-            pageNumbers={pageNumbers}
+            pageCount={pagination?.total}
             onPaginate={onPaginate}
           />
         </Col>

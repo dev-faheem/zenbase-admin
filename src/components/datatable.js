@@ -13,7 +13,6 @@ export default function DataTable({
   checked,
   onChangeCheckBox,
   pagination,
-  pageNumbers,
   onPaginate,
 }) {
   return (
@@ -33,7 +32,7 @@ export default function DataTable({
           />
         </div>
       )}
-      <table className="table table-striped table-bordered">
+      <table className="table table-striped table-bordered table-responsive">
         <thead>
           <tr>
             {columns.map((column, index) => (
@@ -42,7 +41,7 @@ export default function DataTable({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, rowIndex) => (
+          {rows?.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {columns.map((column, index) => {
                 // if (scoped[column]) {
@@ -63,20 +62,20 @@ export default function DataTable({
           <button
             className="mx-1 btn btn-outline-primary"
             onClick={() => {
-              onChangePrevious?.(pagination.previous);
+              onChangePrevious?.(pagination?.previous);
             }}
-            disabled={pagination.previous === null}
+            disabled={pagination?.previous === null}
           >
             Previous
           </button>
-          {pageNumbers.map((pageNo) => (
+          {Array.from({ length: pagination?.total }).map((_, index) => (
             <button
-              className={`px-1 btn rounded-circle round-button mx-1 ${pagination.page === pageNo ? "btn-primary" : " btn-outline-primary"}`}
-              key={pageNo}
-              onClick={() => onPaginate(pageNo)}
+              className={`px-1 btn rounded-circle round-button mx-1 ${pagination?.page === index+1 ? "btn-primary" : " btn-outline-primary"}`}
+              key={index}
+              onClick={() => onPaginate(index+1)}
             >
               <p>
-                {pageNo}
+                {index+1}
               </p>
             </button>
           ))}
@@ -85,9 +84,9 @@ export default function DataTable({
           <button
             className="mx-1 btn btn-outline-primary"
             onClick={() => {
-              onChangeNext?.(pagination.next);
+              onChangeNext?.(pagination?.next);
             }}
-            disabled={pagination.next === null}
+            disabled={pagination?.next === null}
           >
             Next
           </button>
