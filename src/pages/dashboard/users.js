@@ -217,6 +217,10 @@ export default function Users() {
       selector: (row) => (row.zentokens ? row.zentokens : "~")
     },
     {
+      name: "Account",
+      selector: (row) => (row.isPremium ? <Button>Downgrade Premium</Button> : <Button>Upgrade Premium</Button>)
+    },
+    {
       name: "Options",
       selector: (row) => (
         <div>
