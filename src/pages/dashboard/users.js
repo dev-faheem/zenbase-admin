@@ -150,6 +150,13 @@ export default function Users() {
     limit: 10,
   });
 
+  const calculateDays = (startDate, EndDate) => {
+    const days = Math.ceil(
+      Math.abs(moment(new Date(startDate)) - moment(new Date(EndDate))) /
+        (1000 * 60 * 60 * 24)
+    );
+    return days;
+  };
   const onPaginate = (pageNumber) =>  setPagination({
     ...pagination,
     page: pageNumber,
@@ -202,15 +209,24 @@ export default function Users() {
           : ""
     },
     {
+      name: "Zenbase Premium",
+      selector: (row) =>
+        row?.isPremium &&
+        calculateDays(
+          row?.subscription?.expiresAt,
+          row?.subscription.createdAt
+        ) > 7
+          ? "Premium"
+          : "General",
+    },
+    {
       name: "Meditated Time(hrs)",
       selector: (row) => row.hours
     },
     {
       name: "CreatedAt",
       selector: (row) =>
-        row.createdAt
-          ? moment(row.createdAt).format("DD/MM/yyyy")
-          : ""
+        row.createdAt ? moment(row.createdAt).format("DD/MM/yyyy") : ""
     },
     {
       name: "Zentokens",
@@ -218,7 +234,22 @@ export default function Users() {
     },
     {
       name: "Account",
-      selector: (row) => (row.isPremium ? <Button>Downgrade Premium</Button> : <Button>Upgrade Premium</Button>)
+      selector: (row) =>
+        row.isPremium ? (
+          <Button
+            onClick={async () => {
+              try {
+                await axios.put(`/auth/cancel-premium`, {
+                  user: row,
+                });
+              } catch (e) {
+                console.log(e);
+              }
+            }}
+          >
+            Downgrade Premium
+          </Button>
+        ) : ( <Button>Upgrade Premium</Button> ),
     },
     {
       name: "Options",
