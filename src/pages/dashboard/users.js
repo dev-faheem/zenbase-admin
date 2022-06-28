@@ -239,7 +239,7 @@ export default function Users() {
           <Button
             onClick={async () => {
               try {
-                await axios.put(`/auth/cancel-premium`, {
+                await axios.put(`users/downgrade-premium`, {
                   user: row,
                 });
               } catch (e) {
@@ -300,7 +300,7 @@ export default function Users() {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `admin/users?limit=10&page=${page}&search=${search}`
+        `users?limit=10&page=${page}&search=${search}`
         );
       const { results, pagination } = data.data;
       setLoading(false);
