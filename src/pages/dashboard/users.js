@@ -136,6 +136,7 @@ function UserCreator({ refetch }) {
 
 export default function Users() {
   const [users, setUsers] = useState([]);
+  console.log('userss', users);
   const [filterUsers, setFilterUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -215,7 +216,7 @@ export default function Users() {
         calculateDays(
           row?.subscription?.expiresAt,
           row?.subscription.createdAt
-        ) > 7
+        ) >= 7
           ? "Premium"
           : "General",
     },
@@ -249,7 +250,15 @@ export default function Users() {
           >
             Downgrade Premium
           </Button>
-        ) : ( <Button>Upgrade Premium</Button> ),
+        ) : ( <Button onClick={async () => {
+          try {
+            await axios.post(`users/upgrade-premium`, {
+              _id: row?._id,
+            });
+          } catch (e) {
+            console.log(e);
+          }
+        }}>Upgrade Premium</Button> ),
     },
     {
       name: "Options",
