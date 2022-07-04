@@ -136,6 +136,7 @@ function UserCreator({ refetch }) {
 
 export default function Users() {
   const [users, setUsers] = useState([]);
+  console.log('userss', users);
   const [filterUsers, setFilterUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -150,10 +151,13 @@ export default function Users() {
     limit: 10,
   });
 
-  const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(pagination.total / pagination.limit); i++) {
-    pageNumbers.push(i);
-  }
+  const calculateDays = (startDate, EndDate) => {
+    const days = Math.ceil(
+      Math.abs(moment(new Date(startDate)) - moment(new Date(EndDate))) /
+        (1000 * 60 * 60 * 24)
+    );
+    return days;
+  };
   const onPaginate = (pageNumber) =>  setPagination({
     ...pagination,
     page: pageNumber,
@@ -206,8 +210,55 @@ export default function Users() {
           : ""
     },
     {
+      name: "Zenbase Premium",
+      selector: (row) =>
+        row?.isPremium &&
+        calculateDays(
+          row?.subscription?.expiresAt,
+          row?.subscription.createdAt
+        ) >= 7
+          ? "Premium"
+          : "General",
+    },
+    {
+      name: "Meditated Time(hrs)",
+      selector: (row) => row.hours
+    },
+    {
+      name: "CreatedAt",
+      selector: (row) =>
+        row.createdAt ? moment(row.createdAt).format("DD/MM/yyyy") : ""
+    },
+    {
       name: "Zentokens",
       selector: (row) => (row.zentokens ? row.zentokens : "~")
+    },
+    {
+      name: "Account",
+      selector: (row) =>
+        row.isPremium ? (
+          <Button
+            onClick={async () => {
+              try {
+                await axios.put(`users/downgrade-premium`, {
+                  user: row,
+                });
+              } catch (e) {
+                console.log(e);
+              }
+            }}
+          >
+            Downgrade Premium
+          </Button>
+        ) : ( <Button onClick={async () => {
+          try {
+            await axios.post(`users/upgrade-premium`, {
+              _id: row?._id,
+            });
+          } catch (e) {
+            console.log(e);
+          }
+        }}>Upgrade Premium</Button> ),
     },
     {
       name: "Options",
@@ -247,7 +298,7 @@ export default function Users() {
                 }
               });
             }}
-          >
+          > 
             Delete
           </Button>
         </div>
@@ -258,8 +309,8 @@ export default function Users() {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `/users?limit=1 &page=${page}&search=${search}`
-      );
+        `users?limit=10&page=${page}&search=${search}`
+        );
       const { results, pagination } = data.data;
       setLoading(false);
       setUsers(results);
@@ -270,8 +321,9 @@ export default function Users() {
   };
 
   useEffect(() => {
-    fetchData(pagination.page);
-  }, [pagination.page]);
+    fetchData(pagination?.page);
+  }, [pagination?.page]);
+
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -354,7 +406,7 @@ export default function Users() {
                     }
                     return true;
                   })
-                : users.filter((user) => {
+                : users?.filter((user) => {
                     if (search !== "") {
                       return Object.keys(user).some((key) =>
                         user[key]?.toString()?.toLowerCase()?.includes(search)
@@ -366,8 +418,7 @@ export default function Users() {
             pagination={pagination}
             onChangeNext={onChangeNext}
             onChangePrevious={onChangePrevious}
-            pageCount={pagination.total}
-            pageNumbers={pageNumbers}
+            pageCount={pagination?.total}
             onPaginate={onPaginate}
           />
         </Col>
