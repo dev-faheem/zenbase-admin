@@ -34,10 +34,10 @@ export default function CustomDropDown({ onChangeCheckBox, checked }) {
               <Input
                 name={item.value}
                 value={item.value}
-                checked={checked[index]}
+                checked={checked?.[index]}
                 onChange={() => onChangeCheckBox(index)}
                 type="checkbox"
-              />{" "}
+              />
               {item.name}
             </Label>
           </DropdownItem>
