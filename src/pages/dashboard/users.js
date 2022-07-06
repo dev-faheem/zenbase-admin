@@ -136,7 +136,6 @@ function UserCreator({ refetch }) {
 
 export default function Users() {
   const [users, setUsers] = useState([]);
-  console.log('userss', users);
   const [filterUsers, setFilterUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -309,7 +308,7 @@ export default function Users() {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `users?limit=10&page=${page}&search=${search}`
+        `users?limit=50&page=${page}&search=${search}`
         );
       const { results, pagination } = data.data;
       setLoading(false);
