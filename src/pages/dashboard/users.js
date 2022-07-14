@@ -198,14 +198,14 @@ export default function Users() {
     {name: "Subscription start",
       selector: (row) =>
         row.subscription
-          ? moment(row.subscription.createdAt).format("DD/MM/yyyy")
+          ? moment(row.subscription.createdAt).format("MM/DD/yyyy")
           : ""
     },
     {
       name: "Subscription end",
       selector: (row) =>
         row.subscription
-          ? moment(row.subscription.expiresAt).format("DD/MM/yyyy")
+          ? moment(row.subscription.expiresAt).format("MM/DD/yyyy")
           : ""
     },
     {
@@ -226,7 +226,7 @@ export default function Users() {
     {
       name: "CreatedAt",
       selector: (row) =>
-        row.createdAt ? moment(row.createdAt).format("DD/MM/yyyy") : ""
+        row.createdAt ? moment(row.createdAt).format("MM/DD/yyyy") : ""
     },
     {
       name: "Zentokens",

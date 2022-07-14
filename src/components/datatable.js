@@ -59,6 +59,9 @@ export default function DataTable({
       </table>
       {showPagination && (
         <div className="mt-4 d-flex justify-content-end">
+          <div className="pt-1 pr-1">
+            {1 + (pagination.page -1) * pagination.limit} - {pagination.page * pagination.limit} of {pagination.count}
+          </div>
           <button
             className="mx-1 btn btn-outline-primary"
             onClick={() => {
@@ -68,17 +71,6 @@ export default function DataTable({
           >
             Previous
           </button>
-          {Array.from({ length: pagination?.total }).map((_, index) => (
-            <button
-              className={`px-1 btn rounded-circle round-button mx-1 ${pagination?.page === index+1 ? "btn-primary" : " btn-outline-primary"}`}
-              key={index}
-              onClick={() => onPaginate(index+1)}
-            >
-              <p>
-                {index+1}
-              </p>
-            </button>
-          ))}
           <div>
           </div>
           <button
