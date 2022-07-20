@@ -149,6 +149,7 @@ export default function Users() {
     next: 0,
     limit: 10,
   });
+  const [sortingVar, setSortingVar] = useState(true)
 
   const calculateDays = (startDate, EndDate) => {
     const days = Math.ceil(
@@ -157,10 +158,11 @@ export default function Users() {
     );
     return days;
   };
-  const onPaginate = (pageNumber) =>  setPagination({
-    ...pagination,
-    page: pageNumber,
-  });
+
+  const sortingFunction = () =>  {
+    setSortingVar(!sortingVar)
+    setFilterUsers(sortingVar ? users.sort((a, b) => b.zentokens - a.zentokens) : (users.sort((a, b) => a.zentokens - b.zentokens)))
+  }
 
   const columns = [
     {
@@ -230,7 +232,8 @@ export default function Users() {
     },
     {
       name: "Zentokens",
-      selector: (row) => (row.zentokens ? row.zentokens : "~")
+      selector: (row) => (row.zentokens ? row.zentokens : "~"),
+      sortable: true,
     },
     {
       name: "Account",
@@ -418,7 +421,8 @@ export default function Users() {
             onChangeNext={onChangeNext}
             onChangePrevious={onChangePrevious}
             pageCount={pagination?.total}
-            onPaginate={onPaginate}
+            sortingFunction={sortingFunction}
+            sortingVar={sortingVar}
           />
         </Col>
         {loading && (
