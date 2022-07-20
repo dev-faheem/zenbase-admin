@@ -13,7 +13,8 @@ export default function DataTable({
   checked,
   onChangeCheckBox,
   pagination,
-  onPaginate,
+  sortingVar,
+  sortingFunction
 }) {
   return (
     <>
@@ -36,7 +37,15 @@ export default function DataTable({
         <thead>
           <tr>
             {columns.map((column, index) => (
-              <th key={index}>{column.name}</th>
+              <th key={index} className={column.sortable ? 'd-flex pt-4 pr-4' : ''}
+              >
+                {column.name}{column.sortable === true ?
+                  <img src={sortingVar ? '/images/icons/arrow-up.svg' : '/images/icons/arrow-down.svg'} 
+                    className="ml-1" 
+                    height={'17px'} 
+                    width={'20px'} 
+                    onClick={() => sortingFunction()}/> : ''}
+              </th>
             ))}
           </tr>
         </thead>
