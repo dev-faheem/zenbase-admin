@@ -69,7 +69,7 @@ export default function DataTable({
       {showPagination && (
         <div className="mt-4 d-flex justify-content-end">
           <div className="pt-1 pr-1">
-            {1 + (pagination.page -1) * pagination.limit} - {pagination.page * pagination.limit} of {pagination.count}
+            {1 + (pagination?.page -1) * pagination?.limit} - {pagination?.page * pagination?.limit} of {pagination?.count}
           </div>
           <button
             className="mx-1 btn btn-outline-primary"

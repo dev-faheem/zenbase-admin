@@ -50,7 +50,7 @@ function UserCreator({ refetch }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const onSubmit = async (values, formikProps) => {
-    await axios.post(config.app + "/auth/register", {
+    await axios.post(config.api + "/auth/register", {
       ...values,
       dontAutoGenerateName: true,
     });
@@ -296,7 +296,7 @@ export default function Users() {
               }).then(async (willDelete) => {
                 if (willDelete) {
                   await axios.delete(`/users/${row._id}`);
-                  await fetchData();
+                  await fetchData(1);
                 }
               });
             }}
@@ -337,7 +337,7 @@ export default function Users() {
   }, [search]);
 
   const onChangeNext = () => {
-    if (pagination.page < pagination.total) {
+    if (pagination?.page < pagination?.total) {
       setPagination({
         ...pagination,
         page: pagination.next,
@@ -346,10 +346,10 @@ export default function Users() {
   };
 
   const onChangePrevious = () => {
-    if (pagination.previous >= 0) {
+    if (pagination?.previous >= 0) {
       setPagination({
         ...pagination,
-        page: pagination.previous,
+        page: pagination?.previous,
       });
     }
   };
@@ -411,7 +411,7 @@ export default function Users() {
                 : users?.filter((user) => {
                     if (search !== "") {
                       return Object.keys(user).some((key) =>
-                        user[key]?.toString()?.toLowerCase()?.includes(search)
+                        user[key]?.toString()?.includes(search)
                       );
                     }
                     return true;

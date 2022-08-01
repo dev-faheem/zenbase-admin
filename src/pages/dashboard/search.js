@@ -25,7 +25,7 @@ const columns = [
     name: 'Artist',
     selector: (row) =>
       row.artist
-        .map(
+        ?.map(
           (artist) =>
             artist?.name || <i className="text-danger">Deleted User</i>
         )
