@@ -6,8 +6,20 @@ import { useState } from 'react';
 import axios from 'axios';
 import useURLState from '@ahooksjs/use-url-state';
 import swal from 'sweetalert';
+import { Input } from 'reactstrap';
 
 const columns = [
+  {
+    name: <Input
+      type="checkbox"
+      onChange={(e) => console.log(e.target.value)}
+    />,
+    selector: (row, index) => <Input
+      type="checkbox"
+      onChange={(e) => console.log(e.target.value)}
+    />,
+    checkBox:true
+  },
   {
     name: 'ID',
     selector: (row, index) => index + 1,
@@ -91,6 +103,27 @@ export default function Search() {
     fetchSongs();
   }, [queryParams]);
 
+  const downloadAll = async () => {
+    const response = await axios.get('/songs');
+    response.data.data?.results?.map((song) => {
+   
+      fetch(song.source)
+        .then(response => {
+          response.blob().then(blob => {
+     
+            let url = window.URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = `${song.name}.mp3`;
+            document.body.appendChild(a)
+            a.click();
+            window.URL.revokeObjectURL(url)
+          });
+        });
+
+    })
+
+  }
   const fetchSongs = async () => {
     try {
       const response = await axios.get('/songs', {
@@ -121,6 +154,7 @@ export default function Search() {
         onChangePage={setPage}
         search={search}
         onSearch={setSearch}
+        downloadAll={downloadAll}
       />
     </Dashboard>
   );

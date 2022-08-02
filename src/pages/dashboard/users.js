@@ -141,30 +141,63 @@ export default function Users() {
   const [search, setSearch] = useState("");
   const [checkedState, setCheckedState] = useState(
     new Array(subscribeCheckBoxArr.length).fill(false)
-  );
-  const [pagination, setPagination] = useState({
-    total: 0,
-    page: 1,
-    previous: 2,
-    next: 0,
-    limit: 10,
-  });
-  const [sortingVar, setSortingVar] = useState(true)
+    );
+    const [pagination, setPagination] = useState({
+      total: 0,
+      page: 1,
+      previous: 2,
+      next: 0,
+      limit: 10,
+    });
+    const [sortingVar, setSortingVar] = useState(true)
+    const [isCheckAll, setIsCheckAll] = useState(false);
+    const [isSelectedId, setIsSelectedId] = useState([]);
 
   const calculateDays = (startDate, EndDate) => {
     const days = Math.ceil(
       Math.abs(moment(new Date(startDate)) - moment(new Date(EndDate))) /
-        (1000 * 60 * 60 * 24)
+      (1000 * 60 * 60 * 24)
     );
     return days;
   };
 
-  const sortingFunction = () =>  {
+  const sortingFunction = () => {
     setSortingVar(!sortingVar)
     setFilterUsers(sortingVar ? users.sort((a, b) => b.zentokens - a.zentokens) : (users.sort((a, b) => a.zentokens - b.zentokens)))
   }
 
+  const handleSelectAll = (e) => {
+    setIsCheckAll(!isCheckAll);
+    setIsSelectedId(users.map((li) => li._id));
+    if (isCheckAll) {
+      setIsSelectedId([]);
+    }
+  };
+
+  const handleClick = (e) => {
+    const { id, checked } = e.target;
+    setIsSelectedId([...isSelectedId, id]);
+    if (!checked) {
+      setIsSelectedId(isSelectedId.filter((item) => item !== id));
+    }
+  };
+  
   const columns = [
+    {
+      name: <Input
+      type="checkbox"
+      onChange={(e) => handleSelectAll(e)}
+      isChecked={isCheckAll}
+      />,
+      selector: (row, index) => <Input
+      type="checkbox"
+      id={row._id}
+      onChange={(e) => handleClick(e)}
+      defaultChecked={isSelectedId.includes(row._id)}
+      
+      />,
+      checkBox: true
+    },
     {
       name: "ID",
       selector: (row, index) => index + 1
@@ -188,8 +221,7 @@ export default function Users() {
     {
       name: "Location",
       selector: (row) =>
-        `${Country.getCountryByCode(row.country)?.name}, ${
-          State.getStateByCodeAndCountry(row.state, row.country)?.name
+        `${Country.getCountryByCode(row.country)?.name}, ${State.getStateByCodeAndCountry(row.state, row.country)?.name
         }`,
     },
     {
@@ -197,7 +229,8 @@ export default function Users() {
       selector: (row) =>
         row.isArtist ? "Artist" : row.isPremium ? "Premium" : "General",
     },
-    {name: "Subscription start",
+    {
+      name: "Subscription start",
       selector: (row) =>
         row.subscription
           ? moment(row.subscription.createdAt).format("MM/DD/yyyy")
@@ -214,10 +247,10 @@ export default function Users() {
       name: "Zenbase Premium",
       selector: (row) =>
         row?.isPremium &&
-        calculateDays(
-          row?.subscription?.expiresAt,
-          row?.subscription.createdAt
-        ) >= 7
+          calculateDays(
+            row?.subscription?.expiresAt,
+            row?.subscription.createdAt
+          ) >= 7
           ? "Premium"
           : "General",
     },
@@ -252,7 +285,7 @@ export default function Users() {
           >
             Downgrade Premium
           </Button>
-        ) : ( <Button onClick={async () => {
+        ) : (<Button onClick={async () => {
           try {
             await axios.post(`users/upgrade-premium`, {
               _id: row?._id,
@@ -260,7 +293,7 @@ export default function Users() {
           } catch (e) {
             console.log(e);
           }
-        }}>Upgrade Premium</Button> ),
+        }}>Upgrade Premium</Button>),
     },
     {
       name: "Options",
@@ -300,7 +333,7 @@ export default function Users() {
                 }
               });
             }}
-          > 
+          >
             Delete
           </Button>
         </div>
@@ -312,7 +345,7 @@ export default function Users() {
     try {
       const { data } = await axios.get(
         `users?limit=50&page=${page}&search=${search}`
-        );
+      );
       const { results, pagination } = data.data;
       setLoading(false);
       setUsers(results);
@@ -401,21 +434,21 @@ export default function Users() {
             rows={
               isFilter
                 ? filterUsers.filter((user) => {
-                    if (search !== "") {
-                      return Object.keys(user).some((key) =>
-                        user[key]?.toString()?.toLowerCase()?.includes(search)
-                      );
-                    }
-                    return true;
-                  })
+                  if (search !== "") {
+                    return Object.keys(user).some((key) =>
+                      user[key]?.toString()?.toLowerCase()?.includes(search)
+                    );
+                  }
+                  return true;
+                })
                 : users?.filter((user) => {
-                    if (search !== "") {
-                      return Object.keys(user).some((key) =>
-                        user[key]?.toString()?.includes(search)
-                      );
-                    }
-                    return true;
-                  })
+                  if (search !== "") {
+                    return Object.keys(user).some((key) =>
+                      user[key]?.toString()?.includes(search)
+                    );
+                  }
+                  return true;
+                })
             }
             pagination={pagination}
             onChangeNext={onChangeNext}

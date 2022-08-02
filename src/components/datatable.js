@@ -1,5 +1,6 @@
 import CustomDropDown from "./drop-down";
 import "../styles/index.css";
+import { Button } from "reactstrap";
 
 export default function DataTable({
   columns,
@@ -14,7 +15,8 @@ export default function DataTable({
   onChangeCheckBox,
   pagination,
   sortingVar,
-  sortingFunction
+  sortingFunction,
+  downloadAll,
 }) {
   return (
     <>
@@ -31,13 +33,14 @@ export default function DataTable({
             checked={checked}
             onChangeCheckBox={onChangeCheckBox}
           />
+          <Button className="ml-3" onClick={downloadAll}>Download All</Button>
         </div>
       )}
       <table className="table table-striped table-bordered table-responsive">
         <thead>
           <tr>
             {columns.map((column, index) => (
-              <th key={index} className={column.sortable ? 'd-flex pt-4 pr-4' : ''}
+              <th key={index} className={column.sortable ? 'd-flex pt-4 pr-4' : column.checkBox?'pb-4 pl-5':''}
               >
                 {column.name}{column.sortable === true ?
                   <img src={sortingVar ? '/images/icons/arrow-up.svg' : '/images/icons/arrow-down.svg'} 
@@ -60,7 +63,7 @@ export default function DataTable({
                 //     </td>
                 //   );
                 // }
-                return <td key={index}>{column.selector(row, rowIndex)}</td>;
+                return <td key={index} className={column.checkBox?'pl-5':''}>{column.selector(row, rowIndex)}</td>;
               })}
             </tr>
           ))}
