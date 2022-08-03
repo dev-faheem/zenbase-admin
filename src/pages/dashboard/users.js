@@ -20,7 +20,7 @@ import config from "../../config";
 import swal from "sweetalert";
 import { Country, State } from "country-state-city";
 import moment from "moment";
-import { subscribeCheckBoxArr } from "../../mockData";
+import { subscribeCheckBoxArr, userActions } from "../../mockData";
 
 function UserField({ label, name, ...props }) {
   return (
@@ -141,18 +141,20 @@ export default function Users() {
   const [search, setSearch] = useState("");
   const [checkedState, setCheckedState] = useState(
     new Array(subscribeCheckBoxArr.length).fill(false)
-    );
-    const [pagination, setPagination] = useState({
-      total: 0,
-      page: 1,
-      previous: 2,
-      next: 0,
-      limit: 10,
-    });
-    const [sortingVar, setSortingVar] = useState(true)
-    const [isCheckAll, setIsCheckAll] = useState(false);
-    const [isSelectedId, setIsSelectedId] = useState([]);
-
+  );
+  const [actionState, setActionState] = useState(  new Array(userActions.length).fill(false)
+  ); 
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    previous: 2,
+    next: 0,
+    limit: 10,
+  });
+  const [sortingVar, setSortingVar] = useState(true)
+  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isSelectedId, setIsSelectedId] = useState([]);
+  const [rowId, setRowId] = useState();
   const calculateDays = (startDate, EndDate) => {
     const days = Math.ceil(
       Math.abs(moment(new Date(startDate)) - moment(new Date(EndDate))) /
@@ -168,7 +170,8 @@ export default function Users() {
 
   const handleSelectAll = (e) => {
     setIsCheckAll(!isCheckAll);
-    setIsSelectedId(users.map((li) => li._id));
+    setRowId(!isCheckAll)
+    setIsSelectedId(users.map((song) => song._id));
     if (isCheckAll) {
       setIsSelectedId([]);
     }
@@ -182,19 +185,21 @@ export default function Users() {
     }
   };
   
+
   const columns = [
     {
       name: <Input
-      type="checkbox"
-      onChange={(e) => handleSelectAll(e)}
-      isChecked={isCheckAll}
+        type="checkbox"
+        className="position-relative"
+        onChange={(e) => handleSelectAll(e)}
+        isChecked={isCheckAll}
       />,
       selector: (row, index) => <Input
-      type="checkbox"
-      id={row._id}
-      onChange={(e) => handleClick(e)}
-      defaultChecked={isSelectedId.includes(row._id)}
-      
+        type="checkbox"
+        className="position-relative"
+        id={row._id}
+        onChange={(e) => handleClick(e, row._id)}
+        defaultChecked={rowId}
       />,
       checkBox: true
     },
@@ -418,6 +423,33 @@ export default function Users() {
   }, [checkedState]);
 
   let isFilter = checkedState.some((item) => item === true);
+
+  const onChangeUsers=(position)=>{
+    console.log('on change user', position)
+    let updatedCheckedState = actionState.map((item, index) =>
+    index === position ? !item : item
+  );
+  setActionState(updatedCheckedState);
+
+  if(actionState[0]===true){
+  }
+  if(actionState[1]){
+  }
+  if(actionState[2] === true){
+      swal({
+        title: "Are you sure?",
+        text: "Once deleted, user wont be able to login or access their accounts.",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      }).then(async (willDelete) => {
+        if (willDelete) {
+          await axios.delete(`/users/all/${isSelectedId}`);
+          await fetchData(1);
+        }
+      });
+  }
+  }
   return (
     <Dashboard>
       <Row>
@@ -456,6 +488,9 @@ export default function Users() {
             pageCount={pagination?.total}
             sortingFunction={sortingFunction}
             sortingVar={sortingVar}
+            actions={'users'}
+            onChangeUsers={onChangeUsers}
+            isSelectedId={isSelectedId}
           />
         </Col>
         {loading && (

@@ -1,3 +1,4 @@
+import { useLocation } from "react-router-dom";
 import { Formik, useField, useFormik, useFormikContext } from 'formik';
 import {
   Alert,
@@ -47,7 +48,6 @@ function Select({ values, label, name, ...props }) {
 
 function Input({ type = 'text', label, placeholder, id, ...props }) {
   const [field, meta, helpers] = useField(props);
-
   return (
     <FormGroup>
       {label && <Label>{label}</Label>}
@@ -69,6 +69,7 @@ function Input({ type = 'text', label, placeholder, id, ...props }) {
 }
 
 export default function SongUpload() {
+  const params = useLocation();
   const [fileError, setFileError] = useState();
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
@@ -93,7 +94,7 @@ export default function SongUpload() {
   }, []);
 
   const initialValues = {
-    name: '',
+    name: params.state?.name || '',
     artist: '',
     tags: [],
     categories: [],
