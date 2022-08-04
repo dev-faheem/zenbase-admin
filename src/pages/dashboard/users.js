@@ -154,7 +154,6 @@ export default function Users() {
   const [sortingVar, setSortingVar] = useState(true)
   const [isCheckAll, setIsCheckAll] = useState(false);
   const [isSelectedId, setIsSelectedId] = useState([]);
-  const [rowId, setRowId] = useState();
   const calculateDays = (startDate, EndDate) => {
     const days = Math.ceil(
       Math.abs(moment(new Date(startDate)) - moment(new Date(EndDate))) /
@@ -170,21 +169,34 @@ export default function Users() {
 
   const handleSelectAll = (e) => {
     setIsCheckAll(!isCheckAll);
-    setRowId(!isCheckAll)
     setIsSelectedId(users.map((song) => song._id));
     if (isCheckAll) {
       setIsSelectedId([]);
     }
   };
 
-  const handleClick = (e) => {
-    const { id, checked } = e.target;
+  const handleClick = (e, id) => {
+    const { checked } = e.target;
     setIsSelectedId([...isSelectedId, id]);
     if (!checked) {
       setIsSelectedId(isSelectedId.filter((item) => item !== id));
     }
   };
-  
+
+  const deleteSelectedUsers = () => {
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, user wont be able to login or access their accounts.",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then(async (willDelete) => {
+      if (willDelete) {
+        await axios.delete(`/users/delete-all?ids=${isSelectedId}`);
+        await fetchData(1);
+      }
+    });
+  }
 
   const columns = [
     {
@@ -192,14 +204,13 @@ export default function Users() {
         type="checkbox"
         className="position-relative"
         onChange={(e) => handleSelectAll(e)}
-        isChecked={isCheckAll}
       />,
       selector: (row, index) => <Input
         type="checkbox"
         className="position-relative"
         id={row._id}
         onChange={(e) => handleClick(e, row._id)}
-        defaultChecked={rowId}
+        checked={isSelectedId.includes(row._id)}
       />,
       checkBox: true
     },
@@ -436,20 +447,9 @@ export default function Users() {
   if(actionState[1]){
   }
   if(actionState[2] === true){
-      swal({
-        title: "Are you sure?",
-        text: "Once deleted, user wont be able to login or access their accounts.",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true,
-      }).then(async (willDelete) => {
-        if (willDelete) {
-          await axios.delete(`/users/all/${isSelectedId}`);
-          await fetchData(1);
-        }
-      });
   }
   }
+
   return (
     <Dashboard>
       <Row>
@@ -491,6 +491,8 @@ export default function Users() {
             actions={'users'}
             onChangeUsers={onChangeUsers}
             isSelectedId={isSelectedId}
+            deleteSelectedUsers={deleteSelectedUsers}
+            isDeleteAllUser={isSelectedId.length > 0}
           />
         </Col>
         {loading && (

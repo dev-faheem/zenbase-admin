@@ -20,11 +20,7 @@ export const userActions = [{
 {
   name: "Upgrade/Downgrade Premium",
   value: "upgradedowngradepremium"
-},
-{
-  name: "Delete",
-  value: "delete"
-}]
+},]
 
 
 export const songActions = [{

@@ -20,14 +20,12 @@ export default function Search() {
   const [queryParams, setQueryParams] = useURLState({ page: 1, search: '' });
   const [isCheckAll, setIsCheckAll] = useState(false);
   const [isSelectedId, setIsSelectedId] = useState([]);
-  const [rowId, setRowId] = useState();
   const [songActionState, setSongActionState] = useState(new Array(songActions.length).fill(false)
   );
 
   const handleSelectAll = (e) => {
     setIsCheckAll(!isCheckAll);
-    setRowId(!isCheckAll)
-    setIsSelectedId(songs.map((li) => li._id));
+    setIsSelectedId(songs.map((song) => song._id));
     if (isCheckAll) {
       setIsSelectedId([]);
     }
@@ -59,14 +57,11 @@ export default function Search() {
       fetch(song.source)
         .then(response => {
           response.blob().then(blob => {
-
             let url = window.URL.createObjectURL(blob);
             let a = document.createElement('a');
             a.href = url;
             a.download = `${song.name}.mp3`;
-            document.body.appendChild(a)
             a.click();
-            window.URL.revokeObjectURL(url)
           });
         });
     })
@@ -89,7 +84,8 @@ export default function Search() {
       dangerMode: true,
     }).then(async (willDelete) => {
       if (willDelete) {
-        await axios.delete(`/songs/all/${isSelectedId}`);
+        await axios.delete(`/songs/delete-all?ids=${isSelectedId}`);
+        await fetchSongs();
       }
     });
   }
@@ -100,14 +96,13 @@ export default function Search() {
         type="checkbox"
         className="position-relative"
         onChange={(e) => handleSelectAll(e)}
-        isChecked={isCheckAll}
       />,
       selector: (row, index) => <Input
         type="checkbox"
         className="position-relative"
         id={row._id}
         onChange={(e) => handleClick(e, row._id)}
-        defaultChecked={rowId}
+        checked={isSelectedId.includes(row._id)}
       />,
       checkBox: true
     },

@@ -23,8 +23,9 @@ export default function DataTable({
   //use this for showing actions
   isSelectedId,
   isDeleteAll,
-  deleteSelectedSongs
-
+  deleteSelectedSongs,
+  deleteSelectedUsers,
+  isDeleteAllUser
 }) {
   return (
     <>
@@ -57,6 +58,7 @@ export default function DataTable({
               />
           }
           {isDeleteAll && (<Button className="ml-3" onClick={deleteSelectedSongs}>Delete All</Button>)}
+          {isDeleteAllUser && (<Button className="ml-3" onClick={deleteSelectedUsers}>Delete All</Button>)}
 
         </div>
       )}

@@ -126,7 +126,6 @@ export default function SongUpload() {
         })
         .join(',')
     );
-
     payload.append('tags', values.tags.map((tag) => tag.value).join(','));
     payload.append(
       'categories',
@@ -135,8 +134,13 @@ export default function SongUpload() {
     payload.append('source', sourceFileRef.current.files[0]);
     payload.append('artwork', artworkFileRef.current.files[0]);
     payload.append('duration', duration || 0);
-    await axios.post('/songs', payload);
-    history.push('/songs');
+    if(params.state._id){
+      await axios.put(`/songs/update/${params.state._id}`, payload);
+      history.push('/songs');
+    } else {
+      await axios.post('/songs', payload);
+      history.push('/songs');
+    }
   };
 
   function computeDuration(file) {
@@ -282,7 +286,7 @@ export default function SongUpload() {
               </CardBody>
               <CardFooter>
                 <Button color="primary" type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Uploading' : 'Upload'}
+                  {params.state?._id ? 'Update' : 'Upload'}
                 </Button>
               </CardFooter>
             </Card>
