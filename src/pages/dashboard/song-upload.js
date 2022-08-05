@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { Formik, useField, useFormik, useFormikContext } from 'formik';
+import { Formik, useField, useFormikContext } from 'formik';
 import {
   Alert,
   Button,
@@ -110,12 +110,10 @@ export default function SongUpload() {
       setFileError('Please attach artwork file.');
       return;
     }
-
     if (sourceFileRef.current.files?.length !== 1) {
       setFileError('Please attach source file.');
       return;
     }
-
     const payload = new FormData();
     payload.append('name', values.name);
     payload.append(
@@ -134,7 +132,7 @@ export default function SongUpload() {
     payload.append('source', sourceFileRef.current.files[0]);
     payload.append('artwork', artworkFileRef.current.files[0]);
     payload.append('duration', duration || 0);
-    if(params.state._id){
+    if(params.state?._id){
       await axios.put(`/songs/update/${params.state._id}`, payload);
       history.push('/songs');
     } else {

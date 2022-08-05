@@ -7,7 +7,7 @@ import {
   Label,
   Input
 } from "reactstrap";
-import { subscribeCheckBoxArr, userActions, songActions } from "../mockData";
+import { subscribeCheckBoxArr} from "../mockData";
 
 export default function CustomDropDown({ onChangeCheckBox, checked, using, onClickUserAction, onClickSongsAction }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -31,7 +31,7 @@ export default function CustomDropDown({ onChangeCheckBox, checked, using, onCli
           </DropdownToggle>
           <DropdownMenu>
             {subscribeCheckBoxArr.map((item, index) => (
-              <DropdownItem className="dropdown-item">
+              <DropdownItem className="dropdown-item" key={index}>
                 <Label check style={{ marginLeft: 20 }}>
                   <Input
                     name={item.value}
@@ -47,42 +47,6 @@ export default function CustomDropDown({ onChangeCheckBox, checked, using, onCli
           </DropdownMenu>
         </> : ''
       }
-
-      {using === 'users' ?
-        <>
-          <DropdownToggle caret>
-            <div>Actions</div>
-          </DropdownToggle>
-          <DropdownMenu>
-            {userActions.map((item, index) => (
-              <DropdownItem className="dropdown-item">
-                <Label onClick={() => onClickUserAction(index)} check style={{ marginLeft: 20 }}>
-                  {item.name}
-                </Label>
-              </DropdownItem>
-            ))}
-          </DropdownMenu>
-        </> : ''}
-
-
-      {using === 'songs' ?
-        <>
-          <DropdownToggle caret>
-            <div>Actions</div>
-          </DropdownToggle>
-          <DropdownMenu>
-            {songActions.map((item, index) => (
-              <DropdownItem className="dropdown-item">
-                <Label onClick={() => onClickSongsAction(index)} check style={{ marginLeft: 20 }}>
-                  {item.name}
-                </Label>
-              </DropdownItem>
-            ))}
-          </DropdownMenu>
-        </> : ''}
-
-
-
     </Dropdown>
   );
 }

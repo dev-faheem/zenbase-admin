@@ -51,9 +51,8 @@ export default function Search() {
   }, [queryParams]);
 
   const downloadAll = async () => {
-    const response = await axios.get('/songs');
+    const response = await axios.get(`/songs?limit=${totalCount}`);
     response.data.data?.results?.map((song) => {
-
       fetch(song.source)
         .then(response => {
           response.blob().then(blob => {
@@ -84,7 +83,8 @@ export default function Search() {
       dangerMode: true,
     }).then(async (willDelete) => {
       if (willDelete) {
-        await axios.delete(`/songs/delete-all?ids=${isSelectedId}`);
+        await axios.delete(`/songs/delete-all/${isSelectedId}`);
+        setIsSelectedId([]);
         await fetchSongs();
       }
     });
@@ -117,7 +117,7 @@ export default function Search() {
     },
     {
       name: 'Artwork',
-      selector: (row) => <img className="song-artwork" src={row.artwork} />,
+      selector: (row) => <img className="song-artwork" src={row.artwork} alt="" />,
     },
     {
       name: 'Artist',
@@ -190,30 +190,7 @@ export default function Search() {
       sweetError(e);
     }
   };
-  const onChangeSongs = (position) => {
-    let updatedCheckedState = songActionState.map((item, index) =>
-      index === position ? !item : item
-    );
-    setSongActionState(updatedCheckedState);
 
-    if (songActionState[0] === true) {
-    }
-    if (songActionState[1]) {
-    }
-    if (songActionState[2] === true) {
-      swal({
-        title: "Are you sure?",
-        text: "Once deleted, user wont be able to login or access their accounts.",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true,
-      }).then(async (willDelete) => {
-        if (willDelete) {
-          await axios.delete(`/users/all/${isSelectedId}`);
-        }
-      });
-    }
-  }
   return (
     <Dashboard>
       <DataTable
@@ -227,7 +204,6 @@ export default function Search() {
         search={search}
         onSearch={setSearch}
         downloadAll={downloadAll}
-        onChangeSongs={onChangeSongs}
         deleteSelectedSongs={deleteSelectedSongs}
         isDeleteAll={isSelectedId.length > 0}
       />

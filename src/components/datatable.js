@@ -17,11 +17,6 @@ export default function DataTable({
   sortingVar,
   sortingFunction,
   downloadAll,
-  actions,
-  onChangeSongs,
-  onChangeUsers,
-  //use this for showing actions
-  isSelectedId,
   isDeleteAll,
   deleteSelectedSongs,
   deleteSelectedUsers,
@@ -44,19 +39,6 @@ export default function DataTable({
             onChangeCheckBox={onChangeCheckBox}
           />
           <Button className="ml-3" onClick={downloadAll}>Download All</Button>
-          {
-            actions === 'users' ?
-              <CustomDropDown
-                checked={checked}
-                using={'users'}
-                onClickUserAction={onChangeUsers}
-              /> :
-              <CustomDropDown
-                checked={checked}
-                using={'songs'}
-                onClickSongsAction={onChangeSongs}
-              />
-          }
           {isDeleteAll && (<Button className="ml-3" onClick={deleteSelectedSongs}>Delete All</Button>)}
           {isDeleteAllUser && (<Button className="ml-3" onClick={deleteSelectedUsers}>Delete All</Button>)}
 
@@ -70,6 +52,7 @@ export default function DataTable({
               >
                 {column.name}{column.sortable === true ?
                   <img src={sortingVar ? '/images/icons/arrow-up.svg' : '/images/icons/arrow-down.svg'}
+                    alt=""
                     className="ml-1"
                     height={'17px'}
                     width={'20px'}

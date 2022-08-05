@@ -142,8 +142,6 @@ export default function Users() {
   const [checkedState, setCheckedState] = useState(
     new Array(subscribeCheckBoxArr.length).fill(false)
   );
-  const [actionState, setActionState] = useState(  new Array(userActions.length).fill(false)
-  ); 
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
@@ -169,7 +167,7 @@ export default function Users() {
 
   const handleSelectAll = (e) => {
     setIsCheckAll(!isCheckAll);
-    setIsSelectedId(users.map((song) => song._id));
+    setIsSelectedId(users.map((item) => item._id));
     if (isCheckAll) {
       setIsSelectedId([]);
     }
@@ -192,7 +190,8 @@ export default function Users() {
       dangerMode: true,
     }).then(async (willDelete) => {
       if (willDelete) {
-        await axios.delete(`/users/delete-all?ids=${isSelectedId}`);
+        await axios.delete(`/users/delete-all/${isSelectedId}`);
+        setIsSelectedId([]);
         await fetchData(1);
       }
     });
@@ -363,10 +362,12 @@ export default function Users() {
         `users?limit=50&page=${page}&search=${search}`
       );
       const { results, pagination } = data.data;
-      setLoading(false);
-      setUsers(results);
+      const verifiedUser = results.filter((result)=> result.isVerified);
+      setUsers(verifiedUser);
       setPagination(pagination);
     } catch (err) {
+      console.log(err);
+    } finally {
       setLoading(false);
     }
   };
@@ -435,21 +436,6 @@ export default function Users() {
 
   let isFilter = checkedState.some((item) => item === true);
 
-  const onChangeUsers=(position)=>{
-    console.log('on change user', position)
-    let updatedCheckedState = actionState.map((item, index) =>
-    index === position ? !item : item
-  );
-  setActionState(updatedCheckedState);
-
-  if(actionState[0]===true){
-  }
-  if(actionState[1]){
-  }
-  if(actionState[2] === true){
-  }
-  }
-
   return (
     <Dashboard>
       <Row>
@@ -488,9 +474,6 @@ export default function Users() {
             pageCount={pagination?.total}
             sortingFunction={sortingFunction}
             sortingVar={sortingVar}
-            actions={'users'}
-            onChangeUsers={onChangeUsers}
-            isSelectedId={isSelectedId}
             deleteSelectedUsers={deleteSelectedUsers}
             isDeleteAllUser={isSelectedId.length > 0}
           />
