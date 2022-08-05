@@ -177,7 +177,7 @@ export default function Search() {
     try {
       const response = await axios.get('/songs', {
         params: {
-          limit: 10,
+          limit: 100,
           page,
           search,
         },
