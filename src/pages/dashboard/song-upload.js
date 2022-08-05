@@ -1,4 +1,5 @@
-import { Formik, useField, useFormik, useFormikContext } from 'formik';
+import { useLocation } from "react-router-dom";
+import { Formik, useField, useFormikContext } from 'formik';
 import {
   Alert,
   Button,
@@ -47,7 +48,6 @@ function Select({ values, label, name, ...props }) {
 
 function Input({ type = 'text', label, placeholder, id, ...props }) {
   const [field, meta, helpers] = useField(props);
-
   return (
     <FormGroup>
       {label && <Label>{label}</Label>}
@@ -69,6 +69,7 @@ function Input({ type = 'text', label, placeholder, id, ...props }) {
 }
 
 export default function SongUpload() {
+  const params = useLocation();
   const [fileError, setFileError] = useState();
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
@@ -93,7 +94,7 @@ export default function SongUpload() {
   }, []);
 
   const initialValues = {
-    name: '',
+    name: params.state?.name || '',
     artist: '',
     tags: [],
     categories: [],
@@ -109,12 +110,10 @@ export default function SongUpload() {
       setFileError('Please attach artwork file.');
       return;
     }
-
     if (sourceFileRef.current.files?.length !== 1) {
       setFileError('Please attach source file.');
       return;
     }
-
     const payload = new FormData();
     payload.append('name', values.name);
     payload.append(
@@ -125,7 +124,6 @@ export default function SongUpload() {
         })
         .join(',')
     );
-
     payload.append('tags', values.tags.map((tag) => tag.value).join(','));
     payload.append(
       'categories',
@@ -134,8 +132,13 @@ export default function SongUpload() {
     payload.append('source', sourceFileRef.current.files[0]);
     payload.append('artwork', artworkFileRef.current.files[0]);
     payload.append('duration', duration || 0);
-    await axios.post('/songs', payload);
-    history.push('/songs');
+    if(params.state?._id){
+      await axios.put(`/songs/update/${params.state._id}`, payload);
+      history.push('/songs');
+    } else {
+      await axios.post('/songs', payload);
+      history.push('/songs');
+    }
   };
 
   function computeDuration(file) {
@@ -281,7 +284,7 @@ export default function SongUpload() {
               </CardBody>
               <CardFooter>
                 <Button color="primary" type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Uploading' : 'Upload'}
+                  {params.state?._id ? 'Update' : 'Upload'}
                 </Button>
               </CardFooter>
             </Card>

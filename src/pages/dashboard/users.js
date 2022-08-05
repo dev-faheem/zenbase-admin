@@ -20,7 +20,7 @@ import config from "../../config";
 import swal from "sweetalert";
 import { Country, State } from "country-state-city";
 import moment from "moment";
-import { subscribeCheckBoxArr } from "../../mockData";
+import { subscribeCheckBoxArr, userActions } from "../../mockData";
 
 function UserField({ label, name, ...props }) {
   return (
@@ -50,7 +50,7 @@ function UserCreator({ refetch }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const onSubmit = async (values, formikProps) => {
-    await axios.post(config.app + "/auth/register", {
+    await axios.post(config.api + "/auth/register", {
       ...values,
       dontAutoGenerateName: true,
     });
@@ -150,21 +150,69 @@ export default function Users() {
     limit: 10,
   });
   const [sortingVar, setSortingVar] = useState(true)
-
+  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isSelectedId, setIsSelectedId] = useState([]);
   const calculateDays = (startDate, EndDate) => {
     const days = Math.ceil(
       Math.abs(moment(new Date(startDate)) - moment(new Date(EndDate))) /
-        (1000 * 60 * 60 * 24)
+      (1000 * 60 * 60 * 24)
     );
     return days;
   };
 
-  const sortingFunction = () =>  {
+  const sortingFunction = () => {
     setSortingVar(!sortingVar)
     setFilterUsers(sortingVar ? users.sort((a, b) => b.zentokens - a.zentokens) : (users.sort((a, b) => a.zentokens - b.zentokens)))
   }
 
+  const handleSelectAll = (e) => {
+    setIsCheckAll(!isCheckAll);
+    setIsSelectedId(users.map((item) => item._id));
+    if (isCheckAll) {
+      setIsSelectedId([]);
+    }
+  };
+
+  const handleClick = (e, id) => {
+    const { checked } = e.target;
+    setIsSelectedId([...isSelectedId, id]);
+    if (!checked) {
+      setIsSelectedId(isSelectedId.filter((item) => item !== id));
+    }
+  };
+
+  const deleteSelectedUsers = () => {
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, user wont be able to login or access their accounts.",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then(async (willDelete) => {
+      if (willDelete) {
+        await axios.delete(`/users/delete-all/${isSelectedId}`);
+        setIsSelectedId([]);
+        await fetchData(1);
+      }
+    });
+  }
+
   const columns = [
+    {
+      name: <Input
+        type="checkbox"
+        className="position-relative"
+        onChange={(e) => handleSelectAll(e)}
+      />,
+      selector: (row, index) => <Input
+        type="checkbox"
+        className="position-relative"
+        id={row._id}
+        onChange={(e) => handleClick(e, row._id)}
+        checked={isSelectedId.includes(row._id)}
+      />,
+      checkBox: true
+    },
     {
       name: "ID",
       selector: (row, index) => index + 1
@@ -188,8 +236,7 @@ export default function Users() {
     {
       name: "Location",
       selector: (row) =>
-        `${Country.getCountryByCode(row.country)?.name}, ${
-          State.getStateByCodeAndCountry(row.state, row.country)?.name
+        `${Country.getCountryByCode(row.country)?.name}, ${State.getStateByCodeAndCountry(row.state, row.country)?.name
         }`,
     },
     {
@@ -197,7 +244,8 @@ export default function Users() {
       selector: (row) =>
         row.isArtist ? "Artist" : row.isPremium ? "Premium" : "General",
     },
-    {name: "Subscription start",
+    {
+      name: "Subscription start",
       selector: (row) =>
         row.subscription
           ? moment(row.subscription.createdAt).format("MM/DD/yyyy")
@@ -214,10 +262,10 @@ export default function Users() {
       name: "Zenbase Premium",
       selector: (row) =>
         row?.isPremium &&
-        calculateDays(
-          row?.subscription?.expiresAt,
-          row?.subscription.createdAt
-        ) >= 7
+          calculateDays(
+            row?.subscription?.expiresAt,
+            row?.subscription.createdAt
+          ) >= 7
           ? "Premium"
           : "General",
     },
@@ -252,7 +300,7 @@ export default function Users() {
           >
             Downgrade Premium
           </Button>
-        ) : ( <Button onClick={async () => {
+        ) : (<Button onClick={async () => {
           try {
             await axios.post(`users/upgrade-premium`, {
               _id: row?._id,
@@ -260,7 +308,7 @@ export default function Users() {
           } catch (e) {
             console.log(e);
           }
-        }}>Upgrade Premium</Button> ),
+        }}>Upgrade Premium</Button>),
     },
     {
       name: "Options",
@@ -296,11 +344,11 @@ export default function Users() {
               }).then(async (willDelete) => {
                 if (willDelete) {
                   await axios.delete(`/users/${row._id}`);
-                  await fetchData();
+                  await fetchData(1);
                 }
               });
             }}
-          > 
+          >
             Delete
           </Button>
         </div>
@@ -312,12 +360,14 @@ export default function Users() {
     try {
       const { data } = await axios.get(
         `users?limit=50&page=${page}&search=${search}`
-        );
+      );
       const { results, pagination } = data.data;
-      setLoading(false);
-      setUsers(results);
+      const verifiedUser = results.filter((result)=> result.isVerified);
+      setUsers(verifiedUser);
       setPagination(pagination);
     } catch (err) {
+      console.log(err);
+    } finally {
       setLoading(false);
     }
   };
@@ -337,7 +387,7 @@ export default function Users() {
   }, [search]);
 
   const onChangeNext = () => {
-    if (pagination.page < pagination.total) {
+    if (pagination?.page < pagination?.total) {
       setPagination({
         ...pagination,
         page: pagination.next,
@@ -346,10 +396,10 @@ export default function Users() {
   };
 
   const onChangePrevious = () => {
-    if (pagination.previous >= 0) {
+    if (pagination?.previous >= 0) {
       setPagination({
         ...pagination,
-        page: pagination.previous,
+        page: pagination?.previous,
       });
     }
   };
@@ -385,6 +435,7 @@ export default function Users() {
   }, [checkedState]);
 
   let isFilter = checkedState.some((item) => item === true);
+
   return (
     <Dashboard>
       <Row>
@@ -401,21 +452,21 @@ export default function Users() {
             rows={
               isFilter
                 ? filterUsers.filter((user) => {
-                    if (search !== "") {
-                      return Object.keys(user).some((key) =>
-                        user[key]?.toString()?.toLowerCase()?.includes(search)
-                      );
-                    }
-                    return true;
-                  })
+                  if (search !== "") {
+                    return Object.keys(user).some((key) =>
+                      user[key]?.toString()?.toLowerCase()?.includes(search)
+                    );
+                  }
+                  return true;
+                })
                 : users?.filter((user) => {
-                    if (search !== "") {
-                      return Object.keys(user).some((key) =>
-                        user[key]?.toString()?.toLowerCase()?.includes(search)
-                      );
-                    }
-                    return true;
-                  })
+                  if (search !== "") {
+                    return Object.keys(user).some((key) =>
+                      user[key]?.toString()?.includes(search)
+                    );
+                  }
+                  return true;
+                })
             }
             pagination={pagination}
             onChangeNext={onChangeNext}
@@ -423,6 +474,8 @@ export default function Users() {
             pageCount={pagination?.total}
             sortingFunction={sortingFunction}
             sortingVar={sortingVar}
+            deleteSelectedUsers={deleteSelectedUsers}
+            isDeleteAllUser={isSelectedId.length > 0}
           />
         </Col>
         {loading && (

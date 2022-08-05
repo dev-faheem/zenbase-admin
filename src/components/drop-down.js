@@ -7,9 +7,9 @@ import {
   Label,
   Input
 } from "reactstrap";
-import { subscribeCheckBoxArr } from "../mockData";
+import { subscribeCheckBoxArr} from "../mockData";
 
-export default function CustomDropDown({ onChangeCheckBox, checked }) {
+export default function CustomDropDown({ onChangeCheckBox, checked, using, onClickUserAction, onClickSongsAction }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const toggleDropDown = () => {
@@ -24,25 +24,29 @@ export default function CustomDropDown({ onChangeCheckBox, checked }) {
       onMouseEnter={() => setIsDropdownOpen(true)}
       onMouseLeave={() => setIsDropdownOpen(false)}
     >
-      <DropdownToggle caret>
-        <em className="icon ni ni-filter"></em>
-      </DropdownToggle>
-      <DropdownMenu>
-        {subscribeCheckBoxArr.map((item, index) => (
-          <DropdownItem className="dropdown-item">
-            <Label check style={{ marginLeft: 20 }}>
-              <Input
-                name={item.value}
-                value={item.value}
-                checked={checked?.[index]}
-                onChange={() => onChangeCheckBox(index)}
-                type="checkbox"
-              />
-              {item.name}
-            </Label>
-          </DropdownItem>
-        ))}
-      </DropdownMenu>
+      {using === 'filter' ?
+        <>
+          <DropdownToggle caret>
+            <em className="icon ni ni-filter"></em>
+          </DropdownToggle>
+          <DropdownMenu>
+            {subscribeCheckBoxArr.map((item, index) => (
+              <DropdownItem className="dropdown-item" key={index}>
+                <Label check style={{ marginLeft: 20 }}>
+                  <Input
+                    name={item.value}
+                    value={item.value}
+                    checked={checked?.[index]}
+                    onChange={() => onChangeCheckBox(index)}
+                    type="checkbox"
+                  />
+                  {item.name}
+                </Label>
+              </DropdownItem>
+            ))}
+          </DropdownMenu>
+        </> : ''
+      }
     </Dropdown>
   );
 }
