@@ -20,7 +20,7 @@ import config from "../../config";
 import swal from "sweetalert";
 import { Country, State } from "country-state-city";
 import moment from "moment";
-import { subscribeCheckBoxArr } from "../../mockData";
+import { subscribeCheckBoxArr, userActions } from "../../mockData";
 
 function UserField({ label, name, ...props }) {
   return (
