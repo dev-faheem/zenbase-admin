@@ -13,15 +13,16 @@ import { songActions } from '../../mockData';
 export default function Search() {
   const history = useHistory();
   const [songs, setSongs] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [previousPage, setPreviousPage] = useState();
-  const [nextPage, setNextPage] = useState();
-
-  const [queryParams, setQueryParams] = useURLState({ page: 1, search: '' });
+  const [queryParams, setQueryParams] = useURLState({ search: '' });
   const [isCheckAll, setIsCheckAll] = useState(false);
   const [isSelectedId, setIsSelectedId] = useState([]);
-  const [songActionState, setSongActionState] = useState(new Array(songActions.length).fill(false)
-  );
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    previous: 2,
+    next: 0,
+    limit: 10,
+  });
 
   const handleSelectAll = (e) => {
     setIsCheckAll(!isCheckAll);
@@ -47,11 +48,11 @@ export default function Search() {
     setQueryParams({ ...queryParams, search: _search });
 
   useEffect(() => {
-    fetchSongs();
-  }, [queryParams]);
+    fetchSongs(pagination?.page);
+  }, [queryParams, pagination?.page]);
 
   const downloadAll = async () => {
-    const response = await axios.get(`/songs?limit=${totalCount}`);
+    const response = await axios.get(`/songs?limit=${pagination.count}`);
     response.data.data?.results?.map((song) => {
       fetch(song.source)
         .then(response => {
@@ -172,21 +173,31 @@ export default function Search() {
       ),
     },
   ];
-
-  const fetchSongs = async () => {
-    try {
-      const response = await axios.get('/songs', {
-        params: {
-          limit: 100,
-          page,
-          search,
-        },
+  const onChangeNext = () => {
+    if (pagination?.page < pagination?.total) {
+      setPagination({
+        ...pagination,
+        page: pagination.next,
       });
-      setSongs(response.data.data.results);
-      setTotalCount(response.data.data.songCount);
-      setPreviousPage(response.data.data.previousPage);
-      setNextPage(response.data.data.nextPage);
-    } catch (e) {
+    }
+  };
+
+  const onChangePrevious = () => {
+    if (pagination?.previous >= 0) {
+      setPagination({
+        ...pagination,
+        page: pagination?.previous,
+      });
+    }
+  };
+
+  const fetchSongs = async (page) => {
+    try {
+      const {data} = await axios.get(`/songs?limit=50&page=${page}&search=${search}`);
+      const {results, pagination} = data.data
+      setSongs(results);
+      setPagination(pagination)
+     } catch (e) {
       sweetError(e);
     }
   };
@@ -196,16 +207,15 @@ export default function Search() {
       <DataTable
         columns={columns}
         rows={songs}
-        page={page}
-        totalCount={totalCount}
-        previousPage={previousPage}
-        nextPage={nextPage}
-        onChangePage={setPage}
+        onChangeNext={onChangeNext}
+        onChangePrevious={onChangePrevious}
         search={search}
+        pageCount={pagination?.total}
         onSearch={setSearch}
         downloadAll={downloadAll}
         deleteSelectedSongs={deleteSelectedSongs}
         isDeleteAll={isSelectedId.length > 0}
+        pagination={pagination}
       />
     </Dashboard>
   );
