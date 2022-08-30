@@ -1,19 +1,17 @@
-import Dashboard from '../../layouts/dashboard';
-import DataTable from '../../components/datatable';
+import React, { useState, useEffect } from "react";
+import Dashboard from "../../layouts/dashboard";
+import DataTable from "../../components/datatable";
 import { useHistory } from "react-router-dom";
-import { useEffect } from 'react/cjs/react.development';
-import sweetError from '../../services/sweetError';
-import { useState } from 'react';
-import axios from 'axios';
-import useURLState from '@ahooksjs/use-url-state';
-import swal from 'sweetalert';
-import { Input } from 'reactstrap';
-import { songActions } from '../../mockData';
+import sweetError from "../../services/sweetError";
+import axios from "axios";
+import useURLState from "@ahooksjs/use-url-state";
+import swal from "sweetalert";
+import { Input } from "reactstrap";
 
 export default function Search() {
   const history = useHistory();
   const [songs, setSongs] = useState([]);
-  const [queryParams, setQueryParams] = useURLState({ search: '' });
+  const [queryParams, setQueryParams] = useURLState({ search: "" });
   const [isCheckAll, setIsCheckAll] = useState(false);
   const [isSelectedId, setIsSelectedId] = useState([]);
   const [pagination, setPagination] = useState({
@@ -45,35 +43,37 @@ export default function Search() {
 
   const search = queryParams.search;
   const setSearch = (_search) =>
-    setQueryParams({ ...queryParams, search: _search });
+    setQueryParams({
+      ...queryParams,
+      search: _search,
+    });
 
   useEffect(() => {
     fetchSongs(pagination?.page);
-  }, [queryParams, pagination?.page]);
+  }, [queryParams?.search, pagination?.page]);
 
   const downloadAll = async () => {
     const response = await axios.get(`/songs?limit=${pagination.count}`);
     response.data.data?.results?.map((song) => {
-      fetch(song.source)
-        .then(response => {
-          response.blob().then(blob => {
-            let url = window.URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = `${song.name}.mp3`;
-            a.click();
-          });
+      fetch(song.source).then((response) => {
+        response.blob().then((blob) => {
+          let url = window.URL.createObjectURL(blob);
+          let a = document.createElement("a");
+          a.href = url;
+          a.download = `${song.name}.mp3`;
+          a.click();
         });
-    })
-  }
+      });
+    });
+  };
 
   const editSong = (data) => {
     history.push({
-      pathname: '/songs/create',
+      pathname: "/songs/update",
       search: `?id=${data._id}`,
-      state: data
+      state: data,
     });
-  }
+  };
 
   const deleteSelectedSongs = () => {
     swal({
@@ -89,78 +89,89 @@ export default function Search() {
         await fetchSongs();
       }
     });
-  }
+  };
 
   const columns = [
     {
-      name: <Input
-        type="checkbox"
-        className="position-relative"
-        onChange={(e) => handleSelectAll(e)}
-      />,
-      selector: (row, index) => <Input
-        type="checkbox"
-        className="position-relative"
-        id={row._id}
-        onChange={(e) => handleClick(e, row._id)}
-        checked={isSelectedId.includes(row._id)}
-      />,
-      checkBox: true
+      name: (
+        <Input
+          type="checkbox"
+          className="position-relative"
+          onChange={(e) => handleSelectAll(e)}
+        />
+      ),
+      selector: (row, index) => (
+        <Input
+          type="checkbox"
+          className="position-relative"
+          id={row._id}
+          onChange={(e) => handleClick(e, row._id)}
+          checked={isSelectedId.includes(row._id)}
+        />
+      ),
+      checkBox: true,
     },
     {
-      name: 'ID',
+      name: "ID",
       selector: (row, index) => index + 1,
     },
 
     {
-      name: 'Name',
+      name: "Name",
       selector: (row) => row.name,
     },
     {
-      name: 'Artwork',
-      selector: (row) => <img className="song-artwork" src={row.artwork} alt="" />,
+      name: "Artwork",
+      selector: (row) => (
+        <img className="song-artwork" src={row.artwork} alt="" />
+      ),
     },
     {
-      name: 'Artist',
+      name: "Artist",
       selector: (row) =>
-        row.artist
+        row?.artist
           ?.map(
             (artist) =>
               artist?.name || <i className="text-danger">Deleted User</i>
           )
-          .join(', '),
+          .join(", "),
       // row.artist?.name || <i className="text-danger">*DELETED USER*</i>,
     },
     {
-      name: 'Source',
+      name: "Source",
       selector: (row) => {
         return <audio src={row.source} controls />;
       },
     },
     {
-      name: 'Duration',
+      name: "Duration",
       selector: (row) => {
         return <div>{row.duration} seconds</div>;
       },
     },
     {
-      name: '',
+      name: "",
       selector: (row) => (
         <>
-          <div className='d-flex'>
-            <button className="btn btn-primary btn-sm mr-2" onClick={() => editSong(row)}>Edit</button>
+          <div className="d-flex">
+            <button
+              className="btn btn-primary btn-sm mr-2"
+              onClick={() => editSong(row)}
+            >
+              Edit
+            </button>
             <button
               className="btn btn-danger btn-sm"
               onClick={() => {
                 swal({
-                  title: 'Are you sure?',
-                  text: 'Once deleted, you will not be able to recover this song!',
-                  icon: 'warning',
+                  title: "Are you sure?",
+                  text: "Once deleted, you will not be able to recover this song!",
+                  icon: "warning",
                   buttons: true,
                   dangerMode: true,
                 }).then((willDelete) => {
                   if (willDelete) {
-                    axios.delete('/songs/' + row._id);
+                    axios.delete("/songs/" + row._id);
                     window?.location?.reload();
                   }
                 });
@@ -193,11 +204,13 @@ export default function Search() {
 
   const fetchSongs = async (page) => {
     try {
-      const {data} = await axios.get(`/songs?limit=50&page=${page}&search=${search}`);
-      const {results, pagination} = data.data
+      const { data } = await axios.get(
+        `/songs?limit=50&page=${page}&search=${search}`
+      );
+      const { results, pagination } = data.data;
       setSongs(results);
-      setPagination(pagination)
-     } catch (e) {
+      setPagination(pagination);
+    } catch (e) {
       sweetError(e);
     }
   };

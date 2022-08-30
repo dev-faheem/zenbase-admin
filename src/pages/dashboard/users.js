@@ -149,21 +149,25 @@ export default function Users() {
     next: 0,
     limit: 10,
   });
-  const [sortingVar, setSortingVar] = useState(true)
+  const [sortingVar, setSortingVar] = useState(true);
   const [isCheckAll, setIsCheckAll] = useState(false);
   const [isSelectedId, setIsSelectedId] = useState([]);
   const calculateDays = (startDate, EndDate) => {
     const days = Math.ceil(
       Math.abs(moment(new Date(startDate)) - moment(new Date(EndDate))) /
-      (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24)
     );
     return days;
   };
 
   const sortingFunction = () => {
-    setSortingVar(!sortingVar)
-    setFilterUsers(sortingVar ? users.sort((a, b) => b.zentokens - a.zentokens) : (users.sort((a, b) => a.zentokens - b.zentokens)))
-  }
+    setSortingVar(!sortingVar);
+    setFilterUsers(
+      sortingVar
+        ? users.sort((a, b) => b.zentokens - a.zentokens)
+        : users.sort((a, b) => a.zentokens - b.zentokens)
+    );
+  };
 
   const handleSelectAll = (e) => {
     setIsCheckAll(!isCheckAll);
@@ -195,39 +199,43 @@ export default function Users() {
         await fetchData(1);
       }
     });
-  }
+  };
 
   const columns = [
     {
-      name: <Input
-        type="checkbox"
-        className="position-relative"
-        onChange={(e) => handleSelectAll(e)}
-      />,
-      selector: (row, index) => <Input
-        type="checkbox"
-        className="position-relative"
-        id={row._id}
-        onChange={(e) => handleClick(e, row._id)}
-        checked={isSelectedId.includes(row._id)}
-      />,
-      checkBox: true
+      name: (
+        <Input
+          type="checkbox"
+          className="position-relative"
+          onChange={(e) => handleSelectAll(e)}
+        />
+      ),
+      selector: (row, index) => (
+        <Input
+          type="checkbox"
+          className="position-relative"
+          id={row._id}
+          onChange={(e) => handleClick(e, row._id)}
+          checked={isSelectedId.includes(row._id)}
+        />
+      ),
+      checkBox: true,
     },
     {
       name: "ID",
-      selector: (row, index) => index + 1
+      selector: (row, index) => index + 1,
     },
     {
       name: "Name",
-      selector: (row) => row.name
+      selector: (row) => row.name,
     },
     {
       name: "Email",
-      selector: (row) => row.email
+      selector: (row) => row.email,
     },
     {
       name: "Username",
-      selector: (row) => row.username
+      selector: (row) => row.username,
     },
     {
       name: "Phone",
@@ -236,7 +244,8 @@ export default function Users() {
     {
       name: "Location",
       selector: (row) =>
-        `${Country.getCountryByCode(row.country)?.name}, ${State.getStateByCodeAndCountry(row.state, row.country)?.name
+        `${Country.getCountryByCode(row.country)?.name}, ${
+          State.getStateByCodeAndCountry(row.state, row.country)?.name
         }`,
     },
     {
@@ -249,34 +258,34 @@ export default function Users() {
       selector: (row) =>
         row.subscription
           ? moment(row.subscription.createdAt).format("MM/DD/yyyy")
-          : ""
+          : "",
     },
     {
       name: "Subscription end",
       selector: (row) =>
         row.subscription
           ? moment(row.subscription.expiresAt).format("MM/DD/yyyy")
-          : ""
+          : "",
     },
     {
       name: "Zenbase Premium",
       selector: (row) =>
         row?.isPremium &&
-          calculateDays(
-            row?.subscription?.expiresAt,
-            row?.subscription.createdAt
-          ) >= 7
+        calculateDays(
+          row?.subscription?.expiresAt,
+          row?.subscription.createdAt
+        ) >= 7
           ? "Premium"
           : "General",
     },
     {
       name: "Meditated Time(hrs)",
-      selector: (row) => row.hours
+      selector: (row) => row.hours,
     },
     {
       name: "CreatedAt",
       selector: (row) =>
-        row.createdAt ? moment(row.createdAt).format("MM/DD/yyyy") : ""
+        row.createdAt ? moment(row.createdAt).format("MM/DD/yyyy") : "",
     },
     {
       name: "Zentokens",
@@ -300,15 +309,21 @@ export default function Users() {
           >
             Downgrade Premium
           </Button>
-        ) : (<Button onClick={async () => {
-          try {
-            await axios.post(`users/upgrade-premium`, {
-              _id: row?._id,
-            });
-          } catch (e) {
-            console.log(e);
-          }
-        }}>Upgrade Premium</Button>),
+        ) : (
+          <Button
+            onClick={async () => {
+              try {
+                await axios.post(`users/upgrade-premium`, {
+                  _id: row?._id,
+                });
+              } catch (e) {
+                console.log(e);
+              }
+            }}
+          >
+            Upgrade Premium
+          </Button>
+        ),
     },
     {
       name: "Options",
@@ -362,7 +377,7 @@ export default function Users() {
         `users?limit=50&page=${page}&search=${search}`
       );
       const { results, pagination } = data.data;
-      const verifiedUser = results.filter((result)=> result.isVerified);
+      const verifiedUser = results.filter((result) => result.isVerified);
       setUsers(verifiedUser);
       setPagination(pagination);
     } catch (err) {
@@ -375,7 +390,6 @@ export default function Users() {
   useEffect(() => {
     fetchData(pagination?.page);
   }, [pagination?.page]);
-
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -452,21 +466,21 @@ export default function Users() {
             rows={
               isFilter
                 ? filterUsers.filter((user) => {
-                  if (search !== "") {
-                    return Object.keys(user).some((key) =>
-                      user[key]?.toString()?.toLowerCase()?.includes(search)
-                    );
-                  }
-                  return true;
-                })
+                    if (search !== "") {
+                      return Object.keys(user).some((key) =>
+                        user[key]?.toString()?.toLowerCase()?.includes(search)
+                      );
+                    }
+                    return true;
+                  })
                 : users?.filter((user) => {
-                  if (search !== "") {
-                    return Object.keys(user).some((key) =>
-                      user[key]?.toString()?.includes(search)
-                    );
-                  }
-                  return true;
-                })
+                    if (search !== "") {
+                      return Object.keys(user).some((key) =>
+                        user[key]?.toString()?.includes(search)
+                      );
+                    }
+                    return true;
+                  })
             }
             pagination={pagination}
             onChangeNext={onChangeNext}

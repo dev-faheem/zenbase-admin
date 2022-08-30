@@ -19,12 +19,12 @@ function route(path, component, exact = true) {
 const routes = [
   route("/", () => <Redirect to="/login" />),
   route("/login", AuthLogin),
-  route("/register", AuthRegister),
+  // route("/register", AuthRegister),
   route("/logout", AuthLogout),
-
   route("/dashboard", Home),
   route("/songs", Search),
   route("/songs/create", SongUpload),
+  route("/songs/update", SongUpload),
   route("/categories", Categories),
   route("/tags", Tags),
   route("/playlists", Playlists),
