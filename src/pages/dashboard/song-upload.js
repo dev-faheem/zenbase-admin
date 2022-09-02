@@ -117,10 +117,12 @@ export default function SongUpload() {
   });
 
   const onSubmit = async (values) => {
-    let isValid = fileArtworkValidations(artworkFileRef.current.files[0]);
-    let isValid2 = fileSourceValidations(sourceFileRef.current.files[0]);
+    let isArtworkValid = fileArtworkValidations(
+      artworkFileRef.current.files[0]
+    );
+    let isSourceValid = fileSourceValidations(sourceFileRef.current.files[0]);
 
-    if (isValid && isValid2) {
+    if (isArtworkValid && isSourceValid) {
       const payload = new FormData();
       payload.append("name", values.name);
       payload.append(
