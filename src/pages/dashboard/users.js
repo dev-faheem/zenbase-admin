@@ -20,7 +20,7 @@ import config from "../../config";
 import swal from "sweetalert";
 import { Country, State } from "country-state-city";
 import moment from "moment";
-import { subscribeCheckBoxArr, userActions } from "../../mockData";
+import { subscribeCheckBoxArr } from "../../mockData";
 
 function UserField({ label, name, ...props }) {
   return (
@@ -389,6 +389,7 @@ export default function Users() {
 
   useEffect(() => {
     fetchData(pagination?.page);
+    // eslint-disable-next-line
   }, [pagination?.page]);
 
   useEffect(() => {
@@ -398,6 +399,7 @@ export default function Users() {
       }
     }, 1000);
     return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line
   }, [search]);
 
   const onChangeNext = () => {
@@ -446,6 +448,7 @@ export default function Users() {
     } else {
       setFilterUsers(users);
     }
+    // eslint-disable-next-line
   }, [checkedState]);
 
   let isFilter = checkedState.some((item) => item === true);

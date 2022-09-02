@@ -1,16 +1,5 @@
 import Dashboard from "../../layouts/dashboard";
-import {
-  Alert,
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Form,
-  FormGroup,
-  Input,
-  Label,
-} from "reactstrap";
+import { Button } from "reactstrap";
 import { useState, useEffect } from "react";
 import DataTable from "../../components/datatable";
 import axios from "axios";

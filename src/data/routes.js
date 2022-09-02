@@ -1,6 +1,6 @@
 import { Redirect } from "react-router";
 import AuthLogin from "../pages/auth/login";
-import AuthRegister from "../pages/auth/register";
+// import AuthRegister from "../pages/auth/register";
 import AuthLogout from "../pages/auth/logout";
 import Home from "../pages/dashboard/home";
 import Search from "../pages/dashboard/search";
@@ -11,6 +11,8 @@ import Playlists from "../pages/dashboard/playlists";
 import Settings from "../pages/dashboard/settings";
 import Users from "../pages/dashboard/users";
 import Admins from "../pages/dashboard/admins";
+import ApproveSongs from "../pages/dashboard/approve-songs";
+import RejectedSongs from "../pages/dashboard/rejected-songs";
 
 function route(path, component, exact = true) {
   return { path, component, exact };
@@ -31,6 +33,8 @@ const routes = [
   route("/settings", Settings),
   route("/users", Users),
   route("/admins", Admins),
+  route("/approve-songs", ApproveSongs),
+  route("/rejected-songs", RejectedSongs),
 ];
 
 export default routes;

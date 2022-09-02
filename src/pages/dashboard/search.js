@@ -38,8 +38,8 @@ export default function Search() {
     }
   };
 
-  const page = parseInt(queryParams.page);
-  const setPage = (_page) => setQueryParams({ ...queryParams, page: _page });
+  // const page = parseInt(queryParams.page);
+  // const setPage = (_page) => setQueryParams({ ...queryParams, page: _page });
 
   const search = queryParams.search;
   const setSearch = (_search) =>
@@ -50,12 +50,14 @@ export default function Search() {
 
   useEffect(() => {
     fetchSongs(pagination?.page);
+
+    // eslint-disable-next-line
   }, [queryParams?.search, pagination?.page]);
 
   const downloadAll = async () => {
     const response = await axios.get(`/songs?limit=${pagination.count}`);
     response.data.data?.results?.map((song) => {
-      fetch(song.source).then((response) => {
+      return fetch(song.source).then((response) => {
         response.blob().then((blob) => {
           let url = window.URL.createObjectURL(blob);
           let a = document.createElement("a");
@@ -126,6 +128,7 @@ export default function Search() {
         <img className="song-artwork" src={row.artwork} alt="" />
       ),
     },
+
     {
       name: "Artist",
       selector: (row) =>
@@ -184,6 +187,7 @@ export default function Search() {
       ),
     },
   ];
+
   const onChangeNext = () => {
     if (pagination?.page < pagination?.total) {
       setPagination({
