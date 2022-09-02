@@ -77,11 +77,13 @@ const RejectedSongs = () => {
       name: "Artist",
       selector: (row) =>
         row?.artist
-          ?.map(
-            (artist) =>
-              artist?.name || <i className="text-danger">Deleted User</i>
-          )
-          .join(", "),
+          ? row?.artist
+              .map(
+                (artist) =>
+                  artist?.name || <i className="text-danger">Deleted User</i>
+              )
+              .join(", ")
+          : "-",
     },
     {
       name: "Source",
@@ -91,15 +93,15 @@ const RejectedSongs = () => {
     },
     {
       name: "Creator Name",
-      selector: (row) => row.fullName,
+      selector: (row) => (row.fullName ? row.fullName : "-"),
     },
     {
       name: "Creator Email",
-      selector: (row) => row.email,
+      selector: (row) => (row.email ? row.email : "-"),
     },
     {
       name: "Description",
-      selector: (row) => row.description,
+      selector: (row) => (row.description ? row.description : "-"),
     },
     {
       name: "Duration",
