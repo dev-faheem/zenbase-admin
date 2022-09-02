@@ -70,6 +70,7 @@ function Input({ type = "text", label, placeholder, id, ...props }) {
 export default function SongUpload() {
   const params = useLocation();
   const [fileError, setFileError] = useState();
+  const [fileArtworkError, setArtworkFileError] = useState();
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
   const [duration, setDuration] = useState();
@@ -116,43 +117,40 @@ export default function SongUpload() {
   });
 
   const onSubmit = async (values) => {
-    setFileError();
-    if (artworkFileRef.current.files?.length !== 1) {
-      setFileError("Please attach artwork file.");
-      return;
-    }
-    if (sourceFileRef.current.files?.length !== 1) {
-      setFileError("Please attach source file.");
-      return;
-    }
-    const payload = new FormData();
-    payload.append("name", values.name);
-    payload.append(
-      "artist",
-      values.artist
-        .map((artist) => {
-          return artist.value;
-        })
-        .join(",")
-    );
-    payload.append("tags", values.tags.map((tag) => tag.value).join(","));
-    payload.append(
-      "categories",
-      values.categories.map((category) => category.value).join(",")
-    );
-    payload.append("source", sourceFileRef.current.files[0]);
-    payload.append("artwork", artworkFileRef.current.files[0]);
-    payload.append("duration", duration || 0);
-    if (params.state?._id) {
-      await axios.put(`/songs/update/${params.state._id}`, payload);
-      history.push("/songs");
-    } else {
-      await axios.post("/songs", payload);
-      history.push("/songs");
+    let isValid = fileArtworkValidations(artworkFileRef.current.files[0]);
+    let isValid2 = fileSourceValidations(sourceFileRef.current.files[0]);
+
+    if (isValid && isValid2) {
+      const payload = new FormData();
+      payload.append("name", values.name);
+      payload.append(
+        "artist",
+        values.artist
+          .map((artist) => {
+            return artist.value;
+          })
+          .join(",")
+      );
+      payload.append("tags", values.tags.map((tag) => tag.value).join(","));
+      payload.append(
+        "categories",
+        values.categories.map((category) => category.value).join(",")
+      );
+      payload.append("source", sourceFileRef.current.files[0]);
+      payload.append("artwork", artworkFileRef.current.files[0]);
+      payload.append("duration", duration || 0);
+      if (params.state?._id) {
+        await axios.put(`/songs/update/${params.state._id}`, payload);
+        history.push("/songs");
+      } else {
+        await axios.post("/songs", payload);
+        history.push("/songs");
+      }
     }
   };
 
   function computeDuration(file) {
+    fileSourceValidations(file);
     return new Promise((resolve) => {
       var objectURL = URL.createObjectURL(file);
       var mySound = new Audio([objectURL]);
@@ -167,6 +165,39 @@ export default function SongUpload() {
     });
   }
 
+  const fileSourceValidations = (file) => {
+    let files = ["mp3", "mp4", "mov", "gif", "webm"];
+
+    if (!file) {
+      setFileError("Please attach source file.");
+      return false;
+    } else if (!files.includes(file.name.split(".").pop())) {
+      setFileError(
+        "Invalid Source format.(Only MP3, MP4, MOV, GIF, WEBM allowed.)"
+      );
+      return false;
+    } else {
+      setFileError("");
+      return true;
+    }
+  };
+
+  const fileArtworkValidations = (file) => {
+    let files = ["png", "jpg", "jpeg"];
+    if (!file) {
+      setArtworkFileError("Please attach artwork file.");
+      return false;
+    } else if (!files.includes(file.name.split(".").pop())) {
+      setArtworkFileError(
+        "Invalid Artwork format. (Only JPG, JPEG, PNG allowed.)"
+      );
+      return false;
+    } else {
+      setArtworkFileError("");
+      return true;
+    }
+  };
+
   async function onChangeSource(e) {
     try {
       const _duration = await computeDuration(e.target.files[0]);
@@ -176,6 +207,9 @@ export default function SongUpload() {
     }
   }
 
+  async function onChangeArtwork(e) {
+    fileArtworkValidations(e.target.files[0]);
+  }
   function toTitleCase(str) {
     return str
       .toLowerCase()
@@ -273,8 +307,14 @@ export default function SongUpload() {
                     className="form-control"
                     type="file"
                     ref={artworkFileRef}
+                    onChange={onChangeArtwork}
                   />
                 </FormGroup>
+                {fileArtworkError && (
+                  <Alert color="danger" className="mt-3">
+                    {fileArtworkError}
+                  </Alert>
+                )}
 
                 <FormGroup>
                   <Label>Source</Label>
