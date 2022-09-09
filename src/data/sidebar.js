@@ -17,7 +17,6 @@ function heading(title, admin) {
 
 const sidebar = [
   link("Dashboard", "layout-fill", "#"),
-
   heading("Songs"),
   link("Search", "search", "/songs"),
   link("Upload", "upload", "/songs/create"),
@@ -26,7 +25,6 @@ const sidebar = [
   link("Categories", "view-grid-fill", "/categories"),
   // link("Tags", "tags-fill", "/tags"),
   // link("Playlists", "list-index", "/playlists"),
-
   heading("Administration"),
   link("Global Settings", "setting", "/settings"),
   link("Users", "users-fill", "/users"),

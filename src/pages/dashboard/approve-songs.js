@@ -64,7 +64,6 @@ const ApproveSongs = () => {
       name: "ID",
       selector: (row, index) => index + 1,
     },
-
     {
       name: "Name",
       selector: (row) => row.name,
@@ -92,18 +91,6 @@ const ApproveSongs = () => {
       selector: (row) => {
         return <audio src={row.source} controls />;
       },
-    },
-    {
-      name: "Creator Name",
-      selector: (row) => (row.fullName ? row.fullName : "-"),
-    },
-    {
-      name: "Creator Email",
-      selector: (row) => row.email,
-    },
-    {
-      name: "Description",
-      selector: (row) => row.description,
     },
     {
       name: "Duration",
@@ -184,7 +171,6 @@ const ApproveSongs = () => {
 
   useEffect(() => {
     fetchSongs(pagination?.page);
-
     // eslint-disable-next-line
   }, [queryParams?.search, pagination?.page]);
 

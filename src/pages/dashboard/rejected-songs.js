@@ -92,18 +92,6 @@ const RejectedSongs = () => {
       },
     },
     {
-      name: "Creator Name",
-      selector: (row) => (row.fullName ? row.fullName : "-"),
-    },
-    {
-      name: "Creator Email",
-      selector: (row) => (row.email ? row.email : "-"),
-    },
-    {
-      name: "Description",
-      selector: (row) => (row.description ? row.description : "-"),
-    },
-    {
       name: "Duration",
       selector: (row) => {
         return <div>{row.duration} seconds</div>;

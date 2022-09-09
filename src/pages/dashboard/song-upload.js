@@ -21,7 +21,7 @@ import Creatable from "react-select/creatable";
 import { useHistory } from "react-router";
 
 function Select({ values, label, name, ...props }) {
-  const [field, meta, helpers] = useField({ name });
+  const [field, meta] = useField({ name });
   const formik = useFormikContext();
   return (
     <FormGroup>
@@ -46,7 +46,7 @@ function Select({ values, label, name, ...props }) {
 }
 
 function Input({ type = "text", label, placeholder, id, ...props }) {
-  const [field, meta, helpers] = useField(props);
+  const [field, meta] = useField(props);
   return (
     <FormGroup>
       {label && <Label>{label}</Label>}
@@ -127,11 +127,7 @@ export default function SongUpload() {
       payload.append("name", values.name);
       payload.append(
         "artist",
-        values.artist
-          .map((artist) => {
-            return artist.value;
-          })
-          .join(",")
+        values.artist.map((artist) => artist.value).join(",")
       );
       payload.append("tags", values.tags.map((tag) => tag.value).join(","));
       payload.append(
@@ -139,7 +135,7 @@ export default function SongUpload() {
         values.categories.map((category) => category.value).join(",")
       );
       payload.append("source", sourceFileRef.current.files[0]);
-      payload.append("artwork", artworkFileRef.current.files[0]);
+      payload.append("artwork", artworkFileRef.current?.files[0]);
       payload.append("duration", duration || 0);
       if (params.state?._id) {
         await axios.put(`/songs/update/${params.state._id}`, payload);
@@ -212,6 +208,7 @@ export default function SongUpload() {
   async function onChangeArtwork(e) {
     fileArtworkValidations(e.target.files[0]);
   }
+
   function toTitleCase(str) {
     return str
       .toLowerCase()
