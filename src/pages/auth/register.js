@@ -81,7 +81,6 @@ export default function Register() {
             )}
           </Formik>
           <div className="form-note-s2 text-center pt-4">
-            {" "}
             Already have an account ? <Link to="/login">Sign in instead</Link>
           </div>
         </div>

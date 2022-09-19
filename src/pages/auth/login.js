@@ -51,14 +51,14 @@ export default function Login() {
                 <AuthInput
                   id="password"
                   label="Password"
-                  helper={
-                    <a
-                      className="link link-primary link-sm"
-                      href="/forgot-passowrd"
-                    >
-                      Forgot Password?
-                    </a>
-                  }
+                  // helper={
+                  //   <a
+                  //     className="link link-primary link-sm"
+                  //     href="/forgot-passowrd"
+                  //   >
+                  //     Forgot Password?
+                  //   </a>
+                  // }
                   placeholder="Enter your password"
                   type="password"
                 />
@@ -73,9 +73,9 @@ export default function Login() {
               </form>
             )}
           </Formik>
-          <div className="form-note-s2 text-center pt-4">
+          {/* <div className="form-note-s2 text-center pt-4">
             New on our platform? <Link to="/register">Create an account</Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </Auth>

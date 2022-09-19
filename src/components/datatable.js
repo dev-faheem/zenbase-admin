@@ -20,7 +20,7 @@ export default function DataTable({
   isDeleteAll,
   deleteSelectedSongs,
   deleteSelectedUsers,
-  isDeleteAllUser
+  isDeleteAllUser,
 }) {
   return (
     <>
@@ -35,28 +35,55 @@ export default function DataTable({
           />
           <CustomDropDown
             checked={checked}
-            using={'filter'}
+            using={"filter"}
             onChangeCheckBox={onChangeCheckBox}
           />
-          <Button className="ml-3" onClick={downloadAll}>Download All</Button>
-          {isDeleteAll && (<Button className="ml-3" onClick={deleteSelectedSongs}>Delete All</Button>)}
-          {isDeleteAllUser && (<Button className="ml-3" onClick={deleteSelectedUsers}>Delete All</Button>)}
-
+          <Button className="ml-3" onClick={downloadAll}>
+            Download All
+          </Button>
+          {isDeleteAll && (
+            <Button className="ml-3" onClick={deleteSelectedSongs}>
+              Delete All
+            </Button>
+          )}
+          {isDeleteAllUser && (
+            <Button className="ml-3" onClick={deleteSelectedUsers}>
+              Delete All
+            </Button>
+          )}
         </div>
       )}
       <table className="table table-striped table-bordered table-responsive">
         <thead>
           <tr>
             {columns.map((column, index) => (
-              <th key={index} className={column.sortable ? 'd-flex pt-4 pr-4' : column.checkBox ? 'pb-1 pl-5' : ''}
+              <th
+                key={index}
+                className={
+                  column.sortable
+                    ? "d-flex pt-4 pr-4"
+                    : column.checkBox
+                    ? "pb-1 pl-5"
+                    : ""
+                }
               >
-                {column.name}{column.sortable === true ?
-                  <img src={sortingVar ? '/images/icons/arrow-up.svg' : '/images/icons/arrow-down.svg'}
+                {column.name}
+                {column.sortable === true ? (
+                  <img
+                    src={
+                      sortingVar
+                        ? "/images/icons/arrow-up.svg"
+                        : "/images/icons/arrow-down.svg"
+                    }
                     alt=""
                     className="ml-1"
-                    height={'17px'}
-                    width={'20px'}
-                    onClick={() => sortingFunction()} /> : ''}
+                    height={"17px"}
+                    width={"20px"}
+                    onClick={() => sortingFunction()}
+                  />
+                ) : (
+                  ""
+                )}
               </th>
             ))}
           </tr>
@@ -72,7 +99,11 @@ export default function DataTable({
                 //     </td>
                 //   );
                 // }
-                return <td key={index} className={column.checkBox ? 'pl-5' : ''}>{column.selector(row, rowIndex)}</td>;
+                return (
+                  <td key={index} className={column.checkBox ? "pl-5" : ""}>
+                    {column.selector(row, rowIndex)}
+                  </td>
+                );
               })}
             </tr>
           ))}
@@ -81,7 +112,11 @@ export default function DataTable({
       {showPagination && (
         <div className="mt-4 d-flex justify-content-end">
           <div className="pt-1 pr-1">
-            {1 + (pagination?.page - 1) * pagination?.limit} - {pagination?.page * pagination?.limit} of {pagination?.count}
+            {1 + (pagination?.page - 1) * pagination?.limit} -{" "}
+            {pagination?.page * pagination?.limit < pagination.count
+              ? pagination?.page * pagination?.limit
+              : pagination?.count}{" "}
+            of {pagination?.count}
           </div>
           <button
             className="mx-1 btn btn-outline-primary"
@@ -92,8 +127,7 @@ export default function DataTable({
           >
             Previous
           </button>
-          <div>
-          </div>
+          <div></div>
           <button
             className="mx-1 btn btn-outline-primary"
             onClick={() => {

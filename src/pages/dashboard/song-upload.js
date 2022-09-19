@@ -1,5 +1,6 @@
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { Formik, useField, useFormikContext } from 'formik';
+import { Formik, useField, useFormikContext } from "formik";
 import {
   Alert,
   Button,
@@ -11,18 +12,16 @@ import {
   FormGroup,
   Label,
   Input as RInput,
-} from 'reactstrap';
-import Dashboard from '../../layouts/dashboard';
-import * as yup from 'yup';
-import { useEffect, useState } from 'react/cjs/react.development';
-import RSelect from 'react-select';
-import axios from 'axios';
-import { useRef } from 'react';
-import Creatable from 'react-select/creatable';
-import { useHistory } from 'react-router';
+} from "reactstrap";
+import Dashboard from "../../layouts/dashboard";
+import * as yup from "yup";
+import RSelect from "react-select";
+import axios from "axios";
+import Creatable from "react-select/creatable";
+import { useHistory } from "react-router";
 
 function Select({ values, label, name, ...props }) {
-  const [field, meta, helpers] = useField({ name });
+  const [field, meta] = useField({ name });
   const formik = useFormikContext();
   return (
     <FormGroup>
@@ -46,8 +45,8 @@ function Select({ values, label, name, ...props }) {
   );
 }
 
-function Input({ type = 'text', label, placeholder, id, ...props }) {
-  const [field, meta, helpers] = useField(props);
+function Input({ type = "text", label, placeholder, id, ...props }) {
+  const [field, meta] = useField(props);
   return (
     <FormGroup>
       {label && <Label>{label}</Label>}
@@ -71,6 +70,7 @@ function Input({ type = 'text', label, placeholder, id, ...props }) {
 export default function SongUpload() {
   const params = useLocation();
   const [fileError, setFileError] = useState();
+  const [fileArtworkError, setArtworkFileError] = useState();
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
   const [duration, setDuration] = useState();
@@ -79,12 +79,12 @@ export default function SongUpload() {
   const history = useHistory();
 
   const fetchCategories = async () => {
-    const { data } = await axios.get('/categories');
+    const { data } = await axios.get("/categories");
     setCategories(data.data);
   };
 
   const fetchUsers = async () => {
-    const { data } = await axios.get('/users/artists');
+    const { data } = await axios.get("/users/artists");
     setUsers(data.data);
   };
 
@@ -94,59 +94,66 @@ export default function SongUpload() {
   }, []);
 
   const initialValues = {
-    name: params.state?.name || '',
-    artist: '',
-    tags: [],
-    categories: [],
+    name: params.state?.name || "",
+    artist:
+      params.state?.artist?.map((i) => {
+        let options = { label: i.name, value: i._id };
+        return options;
+      }) || "",
+    tags:
+      params.state?.tags?.map((option) => {
+        let options = { label: option, value: option };
+        return options;
+      }) || [],
+    categories:
+      params.state?.categories?.map((i) => {
+        let options = { label: i.name, value: i._id };
+        return options;
+      }) || [],
   };
 
   const validationSchema = yup.object({
-    name: yup.string().required().label('Name'),
+    name: yup.string().required().label("Name"),
   });
 
   const onSubmit = async (values) => {
-    setFileError();
-    if (artworkFileRef.current.files?.length !== 1) {
-      setFileError('Please attach artwork file.');
-      return;
-    }
-    if (sourceFileRef.current.files?.length !== 1) {
-      setFileError('Please attach source file.');
-      return;
-    }
-    const payload = new FormData();
-    payload.append('name', values.name);
-    payload.append(
-      'artist',
-      values.artist
-        .map((artist) => {
-          return artist.value;
-        })
-        .join(',')
+    let isArtworkValid = fileArtworkValidations(
+      artworkFileRef.current.files[0]
     );
-    payload.append('tags', values.tags.map((tag) => tag.value).join(','));
-    payload.append(
-      'categories',
-      values.categories.map((category) => category.value).join(',')
-    );
-    payload.append('source', sourceFileRef.current.files[0]);
-    payload.append('artwork', artworkFileRef.current.files[0]);
-    payload.append('duration', duration || 0);
-    if(params.state?._id){
-      await axios.put(`/songs/update/${params.state._id}`, payload);
-      history.push('/songs');
-    } else {
-      await axios.post('/songs', payload);
-      history.push('/songs');
+    let isSourceValid = fileSourceValidations(sourceFileRef.current.files[0]);
+
+    if (isArtworkValid && isSourceValid) {
+      const payload = new FormData();
+      payload.append("name", values.name);
+      payload.append(
+        "artist",
+        values.artist.map((artist) => artist.value).join(",")
+      );
+      payload.append("tags", values.tags.map((tag) => tag.value).join(","));
+      payload.append(
+        "categories",
+        values.categories.map((category) => category.value).join(",")
+      );
+      payload.append("source", sourceFileRef.current.files[0]);
+      payload.append("artwork", artworkFileRef.current?.files[0]);
+      payload.append("duration", duration || 0);
+      if (params.state?._id) {
+        await axios.put(`/songs/update/${params.state._id}`, payload);
+        history.push("/songs");
+      } else {
+        await axios.post("/songs", payload);
+        history.push("/songs");
+      }
     }
   };
 
   function computeDuration(file) {
+    fileSourceValidations(file);
     return new Promise((resolve) => {
       var objectURL = URL.createObjectURL(file);
       var mySound = new Audio([objectURL]);
       mySound.addEventListener(
-        'canplaythrough',
+        "canplaythrough",
         () => {
           URL.revokeObjectURL(objectURL);
           resolve(mySound.duration);
@@ -156,28 +163,65 @@ export default function SongUpload() {
     });
   }
 
+  const fileSourceValidations = (file) => {
+    let files = ["mp3", "mp4", "mov", "gif", "webm"];
+
+    if (!file) {
+      setFileError("Please attach source file.");
+      return false;
+    } else if (!files.includes(file.name.split(".").pop())) {
+      setFileError(
+        "Invalid Source format.(Only MP3, MP4, MOV, GIF, WEBM allowed.)"
+      );
+      return false;
+    } else {
+      setFileError("");
+      return true;
+    }
+  };
+
+  const fileArtworkValidations = (file) => {
+    let files = ["png", "jpg", "jpeg"];
+    if (!file) {
+      setArtworkFileError("Please attach artwork file.");
+      return false;
+    } else if (!files.includes(file.name.split(".").pop())) {
+      setArtworkFileError(
+        "Invalid Artwork format. (Only JPG, JPEG, PNG allowed.)"
+      );
+      return false;
+    } else {
+      setArtworkFileError("");
+      return true;
+    }
+  };
+
   async function onChangeSource(e) {
     try {
       const _duration = await computeDuration(e.target.files[0]);
       setDuration(Math.floor(_duration));
     } catch (e) {
-      alert('Cant compute duration of the song.');
+      alert("Cant compute duration of the song.");
     }
+  }
+
+  async function onChangeArtwork(e) {
+    fileArtworkValidations(e.target.files[0]);
   }
 
   function toTitleCase(str) {
     return str
       .toLowerCase()
-      .split('')
+      .split("")
       .map((char, index) => {
         if (index === 0) return char.toUpperCase();
         return char;
       })
-      .join('');
+      .join("");
     // Title Case
-    return str.replace(/\w\S*/g, function (txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
+    // return str.replace(/\w\S*/g, function (txt) {
+    //   return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    // });
   }
 
   return (
@@ -191,7 +235,9 @@ export default function SongUpload() {
           <Form onSubmit={handleSubmit}>
             <Card>
               <CardHeader>
-                <h4>Upload a New Song</h4>
+                <h4>
+                  {params.state?._id ? "Update a Song" : "Upload a New Song"}
+                </h4>
               </CardHeader>
               <CardBody>
                 <div>
@@ -199,7 +245,7 @@ export default function SongUpload() {
                     className="btn btn-sm btn-primary btn-floater"
                     type="button"
                     onClick={() => {
-                      setFieldValue('name', toTitleCase(values.name));
+                      setFieldValue("name", toTitleCase(values.name));
                     }}
                   >
                     Sentence Case
@@ -243,10 +289,10 @@ export default function SongUpload() {
                     options={values.tags}
                     value={values.tags}
                     onChange={(items) => {
-                      setFieldValue('tags', items);
+                      setFieldValue("tags", items);
                     }}
                     onCreateOption={(option) => {
-                      setFieldValue('tags', [
+                      setFieldValue("tags", [
                         ...values.tags,
                         { label: option, value: option },
                       ]);
@@ -260,8 +306,14 @@ export default function SongUpload() {
                     className="form-control"
                     type="file"
                     ref={artworkFileRef}
+                    onChange={onChangeArtwork}
                   />
                 </FormGroup>
+                {fileArtworkError && (
+                  <Alert color="danger" className="mt-3">
+                    {fileArtworkError}
+                  </Alert>
+                )}
 
                 <FormGroup>
                   <Label>Source</Label>
@@ -284,7 +336,7 @@ export default function SongUpload() {
               </CardBody>
               <CardFooter>
                 <Button color="primary" type="submit" disabled={isSubmitting}>
-                  {params.state?._id ? 'Update' : 'Upload'}
+                  {params.state?._id ? "Update" : "Upload"}
                 </Button>
               </CardFooter>
             </Card>
