@@ -135,7 +135,8 @@ export default function Search() {
         row?.artist
           ?.map(
             (artist) =>
-              artist?.name || <i className="text-danger">Deleted User</i>
+              artist?.username || <i className="text-danger">Deleted User</i>
+            // artist?.name  || <i className="text-danger">Deleted User</i>
           )
           .join(", "),
       // row.artist?.name || <i className="text-danger">*DELETED USER*</i>,

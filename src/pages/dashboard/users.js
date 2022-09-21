@@ -21,6 +21,8 @@ import swal from "sweetalert";
 import { Country, State } from "country-state-city";
 import moment from "moment";
 import { subscribeCheckBoxArr } from "../../mockData";
+import sweetError from "../../services/sweetError";
+import sweetInfo from "../../services/sweetInfo";
 
 function UserField({ label, name, ...props }) {
   return (
@@ -50,14 +52,18 @@ function UserCreator({ refetch }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const onSubmit = async (values, formikProps) => {
-    await axios.post(config.api + "/auth/register", {
-      ...values,
-      dontAutoGenerateName: true,
-    });
-    formikProps.resetForm();
-    refetch?.();
+    try {
+      await axios.post(config.api + "/auth/register", {
+        ...values,
+        dontAutoGenerateName: true,
+      });
+      sweetInfo("user created successfully");
+      formikProps.resetForm();
+      refetch?.();
+    } catch (e) {
+      sweetError(e);
+    }
   };
-
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit}>
       {(props) => (
@@ -374,12 +380,14 @@ export default function Users() {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `users?limit=50&page=${page}&search=${search}`
+        `users?limit=50&page=${page}&search=${search.trim()}`
       );
+
       const { results, pagination } = data.data;
       const verifiedUser = results.filter((result) => result.isVerified);
       setUsers(verifiedUser);
       setPagination(pagination);
+      //  console.log(results);
     } catch (err) {
       console.log(err);
     } finally {
@@ -393,6 +401,10 @@ export default function Users() {
   }, [pagination?.page]);
 
   useEffect(() => {
+    if (search.trim() === "") {
+      fetchData(1);
+    }
+
     const timeoutId = setTimeout(() => {
       if (search) {
         fetchData(1);
@@ -479,7 +491,7 @@ export default function Users() {
                 : users?.filter((user) => {
                     if (search !== "") {
                       return Object.keys(user).some((key) =>
-                        user[key]?.toString()?.includes(search)
+                        user[key]?.toString()?.toLowerCase()?.includes(search)
                       );
                     }
                     return true;

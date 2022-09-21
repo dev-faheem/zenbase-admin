@@ -117,12 +117,7 @@ export default function SongUpload() {
   });
 
   const onSubmit = async (values) => {
-    let isArtworkValid = fileArtworkValidations(
-      artworkFileRef.current.files[0]
-    );
-    let isSourceValid = fileSourceValidations(sourceFileRef.current.files[0]);
-
-    if (isArtworkValid && isSourceValid) {
+    if (params.search) {
       const payload = new FormData();
       payload.append("name", values.name);
       payload.append(
@@ -134,15 +129,60 @@ export default function SongUpload() {
         "categories",
         values.categories.map((category) => category.value).join(",")
       );
-      payload.append("source", sourceFileRef.current.files[0]);
-      payload.append("artwork", artworkFileRef.current?.files[0]);
       payload.append("duration", duration || 0);
+
+      if (artworkFileRef.current.files[0]) {
+        let isArtworkValid = fileArtworkValidations(
+          artworkFileRef.current.files[0]
+        );
+        if (isArtworkValid) {
+          payload.append("artwork", artworkFileRef.current?.files[0]);
+        }
+      }
+      if (sourceFileRef.current.files[0]) {
+        let isSourceValid = fileSourceValidations(
+          sourceFileRef.current.files[0]
+        );
+
+        if (isSourceValid) {
+          payload.append("source", sourceFileRef.current.files[0]);
+        }
+      }
       if (params.state?._id) {
         await axios.put(`/songs/update/${params.state._id}`, payload);
         history.push("/songs");
       } else {
         await axios.post("/songs", payload);
         history.push("/songs");
+      }
+    } else {
+      let isArtworkValid = fileArtworkValidations(
+        artworkFileRef.current.files[0]
+      );
+
+      let isSourceValid = fileSourceValidations(sourceFileRef.current.files[0]);
+      if (isArtworkValid && isSourceValid) {
+        const payload = new FormData();
+        payload.append("name", values.name);
+        payload.append(
+          "artist",
+          values.artist.map((artist) => artist.value).join(",")
+        );
+        payload.append("tags", values.tags.map((tag) => tag.value).join(","));
+        payload.append(
+          "categories",
+          values.categories.map((category) => category.value).join(",")
+        );
+        payload.append("source", sourceFileRef.current.files[0]);
+        payload.append("artwork", artworkFileRef.current?.files[0]);
+        payload.append("duration", duration || 0);
+        if (params.state?._id) {
+          await axios.put(`/songs/update/${params.state._id}`, payload);
+          history.push("/songs");
+        } else {
+          await axios.post("/songs", payload);
+          history.push("/songs");
+        }
       }
     }
   };
