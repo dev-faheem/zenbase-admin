@@ -20,6 +20,11 @@ const sidebar = [
   heading("Songs"),
   link("Search", "search", "/songs"),
   link("Upload", "upload", "/songs/create"),
+
+  //link("Top Card Songs", "file", "/topcard/create"),
+
+  link("Top Card Songs", "cards", "/search-topcard"),
+
   link("Approve Songs", "check", "/approve-songs"),
   link("Rejected Songs", "cross", "/rejected-songs"),
   link("Categories", "view-grid-fill", "/categories"),
