@@ -5,6 +5,10 @@ import AuthLogout from "../pages/auth/logout";
 import Home from "../pages/dashboard/home";
 import Search from "../pages/dashboard/search";
 import SongUpload from "../pages/dashboard/song-upload";
+
+import SearchTopcards from "../pages/dashboard/search-topcard";
+
+import SongTopCard from "../pages/dashboard/song-topcard";
 import Categories from "../pages/dashboard/categories";
 import Tags from "../pages/dashboard/tags";
 import Playlists from "../pages/dashboard/playlists";
@@ -28,6 +32,12 @@ const routes = [
   route("/songs/create", SongUpload),
   route("/songs/update", SongUpload),
   route("/categories", Categories),
+
+  route("/topcard/create", SongTopCard),
+  route("/search-topcard/update", SongTopCard),
+
+  route("/search-topcard", SearchTopcards),
+
   route("/tags", Tags),
   route("/playlists", Playlists),
   route("/settings", Settings),
