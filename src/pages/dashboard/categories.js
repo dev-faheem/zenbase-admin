@@ -50,19 +50,17 @@ function CategoryAdd({
             <Alert color="danger">{formikProps.errors.name}</Alert>
           )}
 
-          {!editCategory ? (
-            <Fragment>
-              <FormGroup>
-                <Label>Artwork</Label>
-                <input
-                  className="form-control"
-                  type="file"
-                  ref={artworkFileRef}
-                />
-              </FormGroup>
-              {fileError && <Alert color="danger">{fileError}</Alert>}
-            </Fragment>
-          ) : null}
+          <Fragment>
+            <FormGroup>
+              <Label>Artwork</Label>
+              <input
+                className="form-control"
+                type="file"
+                ref={artworkFileRef}
+              />
+            </FormGroup>
+            {fileError && <Alert color="danger">{fileError}</Alert>}
+          </Fragment>
         </CardBody>
         <CardFooter>
           {editCategory ? (
@@ -207,26 +205,29 @@ export default function Categories() {
     formikProps.setFieldValue("name", values[0]?.name);
   };
 
-  const editCategoryData = async () => {
+  const editCategoryData = async (values) => {
+    setFileError();
     setUpdating(true);
 
-    if (formikProps.isValid) {
-      await axios
-        .put(`/categories/${id}`, { name: formikProps.values.name })
-        .then((res) => {
-          if (res.data.data) {
-            swal({
-              title: "Success",
-              icon: "success",
-              text: "Category successfully updated.",
-            });
-            fetchData();
-            formikProps.resetForm();
-            setEditCategory(false);
-            setUpdating(false);
-          }
-        });
+    const payload = new FormData();
+    payload.append("name", formikProps.values.name);
+    console.log(artworkFileRef.current.files.length);
+    if (artworkFileRef.current.files.length !== 0) {
+      payload.append("artwork", artworkFileRef.current.files[0]);
     }
+
+    await axios.put(`/categories/${id}`, payload).then((res) => {
+      if (res.data) {
+        swal({
+          title: "Success",
+          icon: "success",
+          text: "Category successfully updated.",
+        });
+
+        fetchData?.();
+        formikProps.resetForm();
+      }
+    });
   };
 
   const onClickDeleteCategory = async (id) => {
