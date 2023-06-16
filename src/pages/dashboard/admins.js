@@ -1,9 +1,10 @@
 import Dashboard from "../../layouts/dashboard";
-import { Button } from "reactstrap";
+import { Button, Col, Row } from "reactstrap";
 import { useState, useEffect } from "react";
 import DataTable from "../../components/datatable";
 import axios from "axios";
 import swal from "sweetalert";
+import AdminCreator from "../../components/createAdmin";
 
 export default function Admins() {
   const [users, setUsers] = useState([]);
@@ -64,6 +65,11 @@ export default function Admins() {
 
   return (
     <Dashboard>
+      <Row>
+        <Col  md={12} className="mb-4">
+          <AdminCreator refetch={fetchData} />
+        </Col>
+      </Row>
       <DataTable
         showSearch={false}
         showPagination={false}
