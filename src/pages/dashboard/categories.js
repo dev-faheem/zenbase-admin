@@ -50,19 +50,17 @@ function CategoryAdd({
             <Alert color="danger">{formikProps.errors.name}</Alert>
           )}
 
-          {!editCategory ? (
-            <Fragment>
-              <FormGroup>
-                <Label>Artwork</Label>
-                <input
-                  className="form-control"
-                  type="file"
-                  ref={artworkFileRef}
-                />
-              </FormGroup>
-              {fileError && <Alert color="danger">{fileError}</Alert>}
-            </Fragment>
-          ) : null}
+          <Fragment>
+            <FormGroup>
+              <Label>Artwork</Label>
+              <input
+                className="form-control"
+                type="file"
+                ref={artworkFileRef}
+              />
+            </FormGroup>
+            {fileError && <Alert color="danger">{fileError}</Alert>}
+          </Fragment>
         </CardBody>
         <CardFooter>
           {editCategory ? (
@@ -121,6 +119,7 @@ export default function Categories() {
   const clear = () => {
     formikProps.resetForm();
     setFileError();
+    artworkFileRef.current.value= ""
   };
 
   const columns = [
@@ -178,7 +177,7 @@ export default function Categories() {
         });
 
         fetchData?.();
-        formikProps.resetForm();
+        clear()
       }
     });
   };
@@ -209,23 +208,23 @@ export default function Categories() {
 
   const editCategoryData = async () => {
     setUpdating(true);
-
+    const payload = new FormData();
+    payload.append("name", formikProps.values.name);
+    payload.append("artwork", artworkFileRef.current.files[0]);
     if (formikProps.isValid) {
-      await axios
-        .put(`/categories/${id}`, { name: formikProps.values.name })
-        .then((res) => {
-          if (res.data.data) {
-            swal({
-              title: "Success",
-              icon: "success",
-              text: "Category successfully updated.",
-            });
-            fetchData();
-            formikProps.resetForm();
-            setEditCategory(false);
-            setUpdating(false);
-          }
-        });
+      await axios.put(`/categories/${id}`, payload).then((res) => {
+        if (res.data.data) {
+          swal({
+            title: "Success",
+            icon: "success",
+            text: "Category successfully updated.",
+          });
+          fetchData();
+          clear()
+          setEditCategory(false);
+          setUpdating(false);
+        }
+      });
     }
   };
 
