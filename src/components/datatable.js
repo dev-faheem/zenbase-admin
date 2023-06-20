@@ -1,3 +1,4 @@
+import React, { useRef } from "react";
 import CustomDropDown from "./drop-down";
 import "../styles/index.css";
 import { Button } from "reactstrap";
@@ -21,7 +22,26 @@ export default function DataTable({
   deleteSelectedSongs,
   deleteSelectedUsers,
   isDeleteAllUser,
+  isDraggable = false,
+  updateRow = () => {},
 }) {
+  const dragItem = useRef();
+  const dragOverItem = useRef();
+  const dragStart = (e, position) => {
+    dragItem.current = position;
+  };
+  const dragEnter = (e, position) => {
+    dragOverItem.current = position;
+  };
+  const drop = (e) => {
+    const copyListItems = [...rows];
+    const dragItemContent = copyListItems[dragItem.current];
+    copyListItems.splice(dragItem.current, 1);
+    copyListItems.splice(dragOverItem.current, 0, dragItemContent);
+    dragItem.current = null;
+    dragOverItem.current = null;
+    updateRow(copyListItems);
+  };
   return (
     <>
       {showSearch && (
@@ -90,15 +110,17 @@ export default function DataTable({
         </thead>
         <tbody>
           {rows?.map((row, rowIndex) => (
-            <tr key={rowIndex}>
+            <tr
+              key={rowIndex}
+              {...(isDraggable && {
+                style: { cursor: "grab" },
+                onDragStart: (e) => dragStart(e, rowIndex),
+                onDragEnter: (e) => dragEnter(e, rowIndex),
+                onDragEnd: drop,
+                draggable: true,
+              })}
+            >
               {columns.map((column, index) => {
-                // if (scoped[column]) {
-                //   return (
-                //     <td key={index}>
-                //       {scoped[column](row, rowIndex, column)}
-                //     </td>
-                //   );
-                // }
                 return (
                   <td key={index} className={column.checkBox ? "pl-5" : ""}>
                     {column.selector(row, rowIndex)}
