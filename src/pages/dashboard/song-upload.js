@@ -302,12 +302,20 @@ export default function SongUpload() {
 
                 <FormGroup>
                   <Label>Artwork</Label>
-                  <input
-                    className="form-control"
-                    type="file"
-                    ref={artworkFileRef}
-                    onChange={onChangeArtwork}
-                  />
+                 <div className="d-flex flex-row w-100 align-items-end " >
+                 {params?.state &&  <div className="w-25"> <img className=" mb-2" src={params.state.artwork} height="180px" alt="img" />  </div>}
+                <div 
+                {...(params?.state ? {className:"w-75 p-2"} : {className:"w-100" })}
+                >
+                    <input
+                      className="form-control"
+                      type="file"
+                      ref={artworkFileRef}
+                      onChange={onChangeArtwork}
+                    />
+                  </div>
+                </div>
+                
                 </FormGroup>
                 {fileArtworkError && (
                   <Alert color="danger" className="mt-3">
@@ -317,14 +325,21 @@ export default function SongUpload() {
 
                 <FormGroup>
                   <Label>Source</Label>
-                  <input
-                    className="form-control"
-                    type="file"
-                    ref={sourceFileRef}
-                    onChange={onChangeSource}
-                  />
+                  <div className="d-flex flex-row w-100 align-items-center " >
+                  {params?.state &&  <div className="w-25"> <audio className="" style={{height:"38px",width:"100%"}} src={params?.state?.source} controls />  </div>}
+                  <div 
+                  {...(params?.state ? {className:"w-75 p-2"}: {className:"w-100" })}
+                >
+                    <input
+                      className="form-control"
+                      type="file"
+                      ref={sourceFileRef}
+                      onChange={onChangeSource}
+                    />
+                  </div>
+                </div>
                   <p className="text-muted text-xs">
-                    {duration && `Detected ${duration} seconds`}
+                    {duration ? `Detected ${duration} seconds` : params?.state && `Detected ${params?.state?.duration} seconds`}
                   </p>
                 </FormGroup>
 
