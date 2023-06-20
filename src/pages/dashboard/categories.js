@@ -101,6 +101,7 @@ function CategoryAdd({
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
+  const [cloneCategories, setCloneCategories] = useState([]);
   const [editCategory, setEditCategory] = useState(false);
   const [id, setId] = useState("");
   const [updating, setUpdating] = useState(false);
@@ -119,7 +120,7 @@ export default function Categories() {
   const clear = () => {
     formikProps.resetForm();
     setFileError();
-    artworkFileRef.current.value= ""
+    artworkFileRef.current.value = "";
   };
 
   const columns = [
@@ -188,8 +189,12 @@ export default function Categories() {
     const { data } = await axios.get("/categories");
 
     setCategories(data.data);
+    setCloneCategories(data.data);
   };
-
+  const updateRow = (rows) => {
+    rows.map((item,index) => item["order"] = ++index )
+    setCategories(rows);
+  };
   const onClickEditCategory = async (id) => {
     setId(id);
     let values = categories
@@ -244,6 +249,22 @@ export default function Categories() {
     // eslint-disable-next-line
   }, []);
 
+  const resetCategories = () => setCategories(cloneCategories);
+
+  const updateCategories = async () => {
+    await axios.post("/categories/updateOrder", {categories}).then((res) => {
+      if (res.data) {
+        swal({
+          title: "Success",
+          icon: "success",
+          text: "Category updated successfully.",
+        });
+        fetchData?.();
+        clear();
+      }
+    });
+  };
+
   return (
     <Dashboard>
       <DataTable
@@ -251,7 +272,24 @@ export default function Categories() {
         showPagination={false}
         columns={columns}
         rows={categories}
+        updateRow={updateRow}
+        isDraggable={true}
       />
+      <>
+        {JSON.stringify(categories) !== JSON.stringify(cloneCategories) && (
+          <div className="pt-3">
+            <button
+              className="btn btn-primary btn-sm mr-1"
+              onClick={updateCategories}
+            >
+              Update
+            </button>
+            <button className="btn btn-danger btn-sm" onClick={resetCategories}>
+              Reset
+            </button>
+          </div>
+        )}
+      </>
       <CategoryAdd
         editCategory={editCategory}
         setEditCategory={setEditCategory}
