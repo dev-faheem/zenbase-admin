@@ -39,7 +39,7 @@ jobs:
           aws-region: us-east-2
 
       - name: Sync build to S3 bucket
-        run: aws s3 sync dist/ s3://zenbase-admin
+        run: aws s3 sync build/ s3://zenbase-admin
         
       - name: Refresh cloudfront
         shell: bash
