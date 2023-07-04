@@ -353,7 +353,7 @@ export default function SongUpload() {
               <CardFooter>
                 <Button color="primary" type="submit" disabled={isSubmitting}>
                   {params.state?._id ? "Update" : "Upload"}
-                  {!isSubmitting && <Spinner  size="sm"> </Spinner>}
+                  {isSubmitting && <Spinner  size="sm"> </Spinner>}
                 </Button>
               </CardFooter>
             </Card>
