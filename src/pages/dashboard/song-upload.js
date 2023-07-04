@@ -12,6 +12,7 @@ import {
   FormGroup,
   Label,
   Input as RInput,
+  Spinner,
 } from "reactstrap";
 import Dashboard from "../../layouts/dashboard";
 import * as yup from "yup";
@@ -352,6 +353,7 @@ export default function SongUpload() {
               <CardFooter>
                 <Button color="primary" type="submit" disabled={isSubmitting}>
                   {params.state?._id ? "Update" : "Upload"}
+                  {!isSubmitting && <Spinner  size="sm"> </Spinner>}
                 </Button>
               </CardFooter>
             </Card>
